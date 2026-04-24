@@ -113,6 +113,7 @@ class QuantumChessTester:
 
                 # --- record pre-move events ---
                 events: list[str] = []
+                pre_measurement_count = len(board.measurement_log)
 
                 # --- apply the move ---
                 try:
@@ -133,13 +134,20 @@ class QuantumChessTester:
                     break
 
                 if not success:
-                    logger.log_error(
-                        "move_failed",
-                        f"apply_move returned False for {move!r} (player={_cn(current_player)})",
-                        move_number,
-                    )
-                    events.append("MOVE_FAILED")
-                    # Continue trying with a fallback classical move
+                    # Distinguish quantum NDO physics (measurement happened during
+                    # the attempt) from genuine engine failures (no measurement).
+                    ndo_occurred = len(board.measurement_log) > pre_measurement_count
+                    if ndo_occurred:
+                        # Correct quantum behaviour: NDO collapse blocked destination.
+                        events.append(f"NDO_BLOCKED:{move!r}")
+                    else:
+                        logger.log_error(
+                            "move_failed",
+                            f"apply_move returned False for {move!r} (player={_cn(current_player)})",
+                            move_number,
+                        )
+                        events.append("MOVE_FAILED")
+                    # Continue with a fallback classical move in both cases
                     fallback = self._fallback_classical(board, current_player)
                     if fallback is not None:
                         try:

@@ -123,9 +123,9 @@ def merge_sources(piece: chess.Piece, qid: int,
     *qid* is the quantum piece id of one of the sources; the other source
     must be a quantum instance of the same piece type.
     """
-    if qid not in board.quantum_pieces:
+    qp = board.quantum_state.get(qid)
+    if qp is None:
         return []
-    qp = board.quantum_pieces[qid]
     result = []
     for sq in qp.positions:
         for other_sq in split_targets(qp.piece, sq, board):

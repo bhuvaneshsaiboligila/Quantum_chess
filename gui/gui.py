@@ -379,7 +379,7 @@ class GameState:
         self.mode: str = InputMode.NORMAL
         self.split_source: Optional[chess.Square] = None
         self.split_first_target: Optional[chess.Square] = None
-        self.entangle_first_qid: Optional[int] = None
+        self.entangle_first_sq: Optional[chess.Square] = None
         self.game_over_text: str = ""
         self.ai_thinking: bool = False
 
@@ -391,7 +391,7 @@ class GameState:
                 return "Split – select target 1"
             return "Split – select target 2"
         if self.mode == InputMode.ENTANGLE:
-            if self.entangle_first_qid is None:
+            if self.entangle_first_sq is None:
                 return "Entangle – click piece 1"
             return "Entangle – click piece 2"
         return "Normal"
@@ -514,7 +514,7 @@ class Game:
             state.legal_targets = []
             state.split_source = None
             state.split_first_target = None
-            state.entangle_first_qid = None
+            state.entangle_first_sq = None
             return
 
         if key == pygame.K_q and not state.game_over_text:
@@ -527,7 +527,7 @@ class Game:
         if key == pygame.K_e and not state.game_over_text:
             if state.board.turn == chess.WHITE:
                 state.mode = InputMode.ENTANGLE
-                state.entangle_first_qid = None
+                state.entangle_first_sq = None
             return
 
     def _handle_click(self, sq: chess.Square):
@@ -635,26 +635,27 @@ class Game:
         state = self.state
         board = state.board
 
+        # Verify there is a white quantum piece at this square
         qids = board.quantum_state.ids_at(sq)
         if not qids:
             return
-
-        qid = qids[0]
-        qp = board.quantum_state.get(qid)
+        qp = board.quantum_state.get(qids[0])
         if qp is None or qp.piece.color != chess.WHITE:
             return
 
-        if state.entangle_first_qid is None:
-            state.entangle_first_qid = qid
+        if state.entangle_first_sq is None:
+            state.entangle_first_sq = sq
             return
 
-        if qid != state.entangle_first_qid:
-            qp2 = board.quantum_state.get(state.entangle_first_qid)
-            if qp2 and qp2.piece.color == chess.WHITE:
-                board.quantum_state.entangle(state.entangle_first_qid, qid)
+        if sq != state.entangle_first_sq:
+            move = Move.entangle(state.entangle_first_sq, sq)
+            success = board.apply_move(move)
+            if success:
+                state.last_move = move
+                state._check_game_over()
 
         state.mode = InputMode.NORMAL
-        state.entangle_first_qid = None
+        state.entangle_first_sq = None
 
     # ------------------------------------------------------------------
     # AI turn

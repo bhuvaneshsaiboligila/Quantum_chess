@@ -71,18 +71,30 @@ class QuantumBoard:
         """
         move.assert_valid()
 
+        # Ensure cb.turn matches board.turn before legality/execution
+        self.classical_board.turn = self.turn
+
         if move.move_type == MoveType.CLASSICAL:
             success = self._apply_classical(move)
         elif move.move_type == MoveType.SPLIT:
+            if not self.rules.is_legal(move, self.turn):
+                return False
             success = self._apply_split(move)
         elif move.move_type == MoveType.MERGE:
+            if not self.rules.is_legal(move, self.turn):
+                return False
             success = self._apply_merge(move)
+        elif move.move_type == MoveType.ENTANGLE:
+            success = self._apply_entangle(move)
         else:
             return False
 
         if success:
             self.move_history.append(move)
             self.turn = chess.BLACK if self.turn == chess.WHITE else chess.WHITE
+            # Keep cb.turn in sync: cb.push() already advances it for CLASSICAL,
+            # but split/merge/entangle never call push().
+            self.classical_board.turn = self.turn
 
         return success
 
@@ -141,11 +153,18 @@ class QuantumBoard:
         if piece.color != self.turn:
             return False
 
-        # NDO check on targets
+        # NDO check on targets: collapse any quantum pieces there first
         for t in (t1, t2):
             if self.is_quantum_square(t):
                 results = self.measurement.resolve_ndo(t)
                 self.measurement_log.extend(results)
+
+        # After NDO resolution a friendly piece may have collapsed onto a target.
+        # If so, the split cannot proceed to that square.
+        for t in (t1, t2):
+            occupant = cb.piece_at(t)
+            if occupant is not None and occupant.color == piece.color:
+                return False
 
         # Remove piece from classical board
         cb.remove_piece_at(from_sq)
@@ -191,50 +210,92 @@ class QuantumBoard:
         if not qids1 or not qids2:
             return False
 
-        qp1 = qs.get(qids1[0])
-        qp2 = qs.get(qids2[0])
+        qid1 = qids1[0]
+        qid2 = qids2[0]
+        same_piece = (qid1 == qid2)  # merging two positions of the same quantum piece
+
+        qp1 = qs.get(qid1)
+        qp2 = qs.get(qid2)
 
         if qp1 is None or qp2 is None:
             return False
-        if qp1.piece.piece_type != qp2.piece.piece_type:
-            return False
         if qp1.piece.color != self.turn:
+            return False
+        if not same_piece and qp1.piece.piece_type != qp2.piece.piece_type:
             return False
 
         # Retrieve amplitudes at the source squares
         amp1 = (qp1.amplitudes[qp1.positions.index(s1)]
                 if s1 in qp1.positions else complex(0))
-        amp2 = (qp2.amplitudes[qp2.positions.index(s2)]
-                if s2 in qp2.positions else complex(0))
+        if same_piece:
+            amp2 = (qp1.amplitudes[qp1.positions.index(s2)]
+                    if s2 in qp1.positions else complex(0))
+        else:
+            amp2 = (qp2.amplitudes[qp2.positions.index(s2)]
+                    if s2 in qp2.positions else complex(0))
 
         merged_amp = Move.merge_amplitude(amp1, amp2)
+        merged_prob = abs(merged_amp) ** 2
+
+        # Save piece type before any removals
+        piece_to_place = qp1.piece
 
         # NDO check on destination
         if self.is_quantum_square(to_sq):
             results = self.measurement.resolve_ndo(to_sq)
             self.measurement_log.extend(results)
 
-        # Remove source positions
+        # Remove source positions (order matters for same-piece case: remove s1 first)
         qp1.remove_position(s1)
-        qp2.remove_position(s2)
+        if same_piece:
+            # qp1 == qp2; remove s2 from the same object after s1 is gone
+            qp1.remove_position(s2)
+        else:
+            qp2.remove_position(s2)
 
-        # Remove empty quantum pieces
-        for qid in (qids1[0], qids2[0]):
-            qp = qs.get(qid)
-            if qp is not None and len(qp.positions) == 0:
-                qs.remove(qid)
+        # Remove quantum pieces that became empty
+        if len(qp1.positions) == 0:
+            qs.remove(qid1)
+        if not same_piece:
+            qp2_live = qs.get(qid2)
+            if qp2_live is not None and len(qp2_live.positions) == 0:
+                qs.remove(qid2)
 
-        # Place merged piece on classical board (definite if both amps real+equal)
-        # For simplicity in this implementation, a merge always collapses to
-        # the target (this matches the most common textbook treatment).
-        classical_piece = qp1.piece
+        # Destructive interference: piece annihilates, nothing placed classically
+        if merged_prob < 1e-9:
+            qs._rebuild_index()
+            return True
+
+        # Constructive merge: collapse to classical at destination
         existing = cb.piece_at(to_sq)
         if existing is not None:
             cb.remove_piece_at(to_sq)
-        cb.set_piece_at(to_sq, classical_piece)
+        cb.set_piece_at(to_sq, piece_to_place)
 
         qs._rebuild_index()
         return True
+
+    # ------------------------------------------------------------------
+    # Entangle move
+    # ------------------------------------------------------------------
+
+    def _apply_entangle(self, move: Move) -> bool:
+        sq1, sq2 = move.sources
+        qids1 = self.quantum_state.ids_at(sq1)
+        qids2 = self.quantum_state.ids_at(sq2)
+        if not qids1 or not qids2:
+            return False
+        qid1 = qids1[0]
+        qid2 = qids2[0]
+        if qid1 == qid2:
+            return False  # cannot entangle a piece with itself
+        qp1 = self.quantum_state.get(qid1)
+        qp2 = self.quantum_state.get(qid2)
+        if qp1 is None or qp2 is None:
+            return False
+        if qp1.piece.color != self.turn or qp2.piece.color != self.turn:
+            return False
+        return self.quantum_state.entangle(qid1, qid2)
 
     # ------------------------------------------------------------------
     # Superposition (user-facing helper for GUI)

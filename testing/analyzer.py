@@ -200,27 +200,6 @@ class GameAnalyzer:
                 desc, fix = _ISSUE_HINTS[itype]
                 suggested_fixes.append({"issue": itype, "description": desc, "fix": fix})
 
-        # Check for the cb.turn sync bug
-        has_split_or_merge = any(
-            any(m.get("move_type") in ("split", "merge") for m in g.get("moves", []))
-            for g in games
-        )
-        if has_split_or_merge:
-            suggested_fixes.append({
-                "issue": "cb_turn_sync",
-                "description": (
-                    "After split/merge moves, classical_board.turn is not advanced "
-                    "(no push() is called), causing legal_moves generation to return "
-                    "empty results for the next player."
-                ),
-                "fix": (
-                    "In QuantumBoard._apply_split() and _apply_merge(), add "
-                    "`self.classical_board.turn = not self.classical_board.turn` "
-                    "after mutating the board, or refactor to track turn entirely "
-                    "in QuantumBoard without relying on classical_board.turn."
-                ),
-            })
-
         return {
             "summary": summary,
             "bug_report": all_errors,

@@ -1,10 +1,11 @@
 """
-engine/move.py – Move types: classical, split, and merge.
+engine/move.py – Move types: classical, split, merge, and entangle.
 
-Three move types (from the research paper):
+Four move types (from the research paper):
   CLASSICAL  : standard chess move; one source → one destination
   SPLIT      : one source → two destinations (50/50 probability split)
   MERGE      : two sources → one destination (amplitude recombination)
+  ENTANGLE   : link two quantum pieces so they collapse together
 
 Split amplitude rule: each target gets amplitude = source_amplitude / sqrt(2)
 Merge amplitude rule: destination gets sum of both source amplitudes (interference)
@@ -21,6 +22,7 @@ class MoveType(Enum):
     CLASSICAL = auto()
     SPLIT     = auto()
     MERGE     = auto()
+    ENTANGLE  = auto()
 
 
 class Move:
@@ -72,6 +74,14 @@ class Move:
             self.sources = tuple(sources)  # type: ignore[assignment]
             self.targets = None
 
+        elif move_type == MoveType.ENTANGLE:
+            assert sources is not None, "Entangle move requires sources (two squares)"
+            assert len(sources) == 2, "Entangle move requires exactly 2 source squares"
+            self.from_square = None
+            self.to_square = None
+            self.sources = tuple(sources)  # type: ignore[assignment]
+            self.targets = None
+
         else:
             raise ValueError(f"Unknown MoveType: {move_type}")
 
@@ -95,6 +105,10 @@ class Move:
     def merge(cls, src1: chess.Square, src2: chess.Square,
               to_sq: chess.Square) -> "Move":
         return cls(MoveType.MERGE, sources=(src1, src2), to_square=to_sq)
+
+    @classmethod
+    def entangle(cls, sq1: chess.Square, sq2: chess.Square) -> "Move":
+        return cls(MoveType.ENTANGLE, sources=(sq1, sq2))
 
     # ------------------------------------------------------------------
     # Amplitude rules
@@ -145,6 +159,11 @@ class Move:
             s1, s2 = self.sources
             assert s1 != s2, "Merge sources must be different squares"
 
+        elif self.move_type == MoveType.ENTANGLE:
+            assert self.sources is not None
+            s1, s2 = self.sources
+            assert s1 != s2, "Entangle sources must be different squares"
+
     # ------------------------------------------------------------------
     # Representation
     # ------------------------------------------------------------------
@@ -157,10 +176,13 @@ class Move:
             t1, t2 = self.targets
             return (f"Move.split({chess.square_name(self.from_square)}"
                     f"→{chess.square_name(t1)},{chess.square_name(t2)})")
-        else:
+        elif self.move_type == MoveType.MERGE:
             s1, s2 = self.sources
             return (f"Move.merge({chess.square_name(s1)},{chess.square_name(s2)}"
                     f"→{chess.square_name(self.to_square)})")
+        else:
+            s1, s2 = self.sources
+            return f"Move.entangle({chess.square_name(s1)},{chess.square_name(s2)})"
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Move):
@@ -174,14 +196,18 @@ class Move:
         elif self.move_type == MoveType.SPLIT:
             return (self.from_square == other.from_square and
                     set(self.targets) == set(other.targets))
-        else:
+        elif self.move_type == MoveType.MERGE:
             return (set(self.sources) == set(other.sources) and
                     self.to_square == other.to_square)
+        else:  # ENTANGLE
+            return set(self.sources) == set(other.sources)
 
     def __hash__(self) -> int:
         if self.move_type == MoveType.CLASSICAL:
             return hash((self.move_type, self.from_square, self.to_square, self.promotion))
         elif self.move_type == MoveType.SPLIT:
             return hash((self.move_type, self.from_square, frozenset(self.targets)))
-        else:
+        elif self.move_type == MoveType.MERGE:
             return hash((self.move_type, frozenset(self.sources), self.to_square))
+        else:  # ENTANGLE
+            return hash((self.move_type, frozenset(self.sources)))

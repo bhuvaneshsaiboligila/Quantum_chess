@@ -85,36 +85,50 @@ class RuleEngine:
     def legal_merge_moves(self, color: chess.Color) -> list[Move]:
         """
         Return all legal merge moves for *color*.
-        Two quantum instances of the same piece type merge to one target.
+        Two quantum positions of the same piece type merge to one target.
         The target must be reachable from both source squares.
+        Handles both cross-piece merges and self-merges (a split piece merging
+        its two positions back into one).
         """
         qs = self._board.quantum_state
         cb = self._board.classical_board
-        moves = []
+        moves: list[Move] = []
 
         qpieces = [qp for qp in qs.pieces.values() if qp.piece.color == color]
 
+        # Cross-piece merges: two distinct quantum pieces of the same type
         for i in range(len(qpieces)):
             for j in range(i + 1, len(qpieces)):
                 qp1 = qpieces[i]
                 qp2 = qpieces[j]
-
-                # Must be same piece type
                 if qp1.piece.piece_type != qp2.piece.piece_type:
                     continue
-
                 for sq1 in qp1.positions:
                     for sq2 in qp2.positions:
                         if sq1 == sq2:
                             continue
-                        # Find common reachable squares
-                        targets1 = self._pseudo_legal_targets(qp1.piece, sq1, cb)
-                        targets2 = self._pseudo_legal_targets(qp2.piece, sq2, cb)
-                        common = set(targets1) & set(targets2)
-                        for t in common:
+                        targets1 = self._pseudo_legal_targets_for_piece(qp1.piece, sq1, cb)
+                        targets2 = self._pseudo_legal_targets_for_piece(qp2.piece, sq2, cb)
+                        for t in set(targets1) & set(targets2):
                             occ = cb.piece_at(t)
                             if occ is None or occ.color != color:
                                 moves.append(Move.merge(sq1, sq2, t))
+
+        # Self-merges: a single quantum piece with ≥ 2 positions
+        for qp in qpieces:
+            if len(qp.positions) < 2:
+                continue
+            for i in range(len(qp.positions)):
+                for j in range(i + 1, len(qp.positions)):
+                    sq1 = qp.positions[i]
+                    sq2 = qp.positions[j]
+                    targets1 = self._pseudo_legal_targets_for_piece(qp.piece, sq1, cb)
+                    targets2 = self._pseudo_legal_targets_for_piece(qp.piece, sq2, cb)
+                    for t in set(targets1) & set(targets2):
+                        occ = cb.piece_at(t)
+                        if occ is None or occ.color != color:
+                            moves.append(Move.merge(sq1, sq2, t))
+
         return moves
 
     def all_legal_moves(self, color: chess.Color) -> list[Move]:
@@ -196,10 +210,23 @@ class RuleEngine:
     def _pseudo_legal_targets(self, piece: chess.Piece,
                                sq: chess.Square,
                                cb: chess.Board) -> list[chess.Square]:
-        """Return pseudo-legal destination squares for *piece* on *sq*."""
+        """Return pseudo-legal destination squares for *piece* on *sq* (classical board only)."""
         if cb.piece_at(sq) != piece:
             return []
         return [m.to_square for m in cb.pseudo_legal_moves if m.from_square == sq]
+
+    def _pseudo_legal_targets_for_piece(self, piece: chess.Piece,
+                                         sq: chess.Square,
+                                         cb: chess.Board) -> list[chess.Square]:
+        """
+        Return pseudo-legal targets for *piece* at *sq*, even if the piece is
+        not on the classical board there (i.e., it is in quantum superposition).
+        Uses a temporary board copy so the original is not modified.
+        """
+        tmp = cb.copy()
+        tmp.set_piece_at(sq, piece)
+        tmp.turn = piece.color  # generate moves for this piece's colour
+        return [m.to_square for m in tmp.pseudo_legal_moves if m.from_square == sq]
 
     def assert_valid(self):
         """Validate rule engine assumptions."""
