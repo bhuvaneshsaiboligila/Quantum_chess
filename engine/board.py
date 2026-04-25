@@ -18,6 +18,7 @@ from engine.quantum_state import QuantumState, QuantumPiece
 from engine.move import Move, MoveType
 from engine.measurement import MeasurementSystem
 from engine.rules import RuleEngine
+from engine.move_classifier import classify, Variant, path_squares
 
 
 class QuantumBoard:
@@ -64,6 +65,17 @@ class QuantumBoard:
     # Apply moves
     # ------------------------------------------------------------------
 
+    def _state_fingerprint(self) -> tuple:
+        """Lightweight state snapshot for no-effect detection (paper Rule 9)."""
+        board_fen = self.classical_board.board_fen()
+        qdata = tuple(
+            (qp.id,
+             tuple(sorted(qp.positions)),
+             tuple(round(abs(a) ** 2, 8) for a in qp.amplitudes))
+            for qp in sorted(self.quantum_state.pieces.values(), key=lambda x: x.id)
+        )
+        return (board_fen, qdata)
+
     def apply_move(self, move: Move) -> bool:
         """
         Apply any legal move.  Returns True on success.
@@ -73,6 +85,8 @@ class QuantumBoard:
 
         # Ensure cb.turn matches board.turn before legality/execution
         self.classical_board.turn = self.turn
+
+        before = self._state_fingerprint()
 
         if move.move_type == MoveType.CLASSICAL:
             success = self._apply_classical(move)
@@ -84,16 +98,15 @@ class QuantumBoard:
             if not self.rules.is_legal(move, self.turn):
                 return False
             success = self._apply_merge(move)
-        elif move.move_type == MoveType.ENTANGLE:
-            success = self._apply_entangle(move)
         else:
             return False
 
         if success:
+            # No-effect: state unchanged → player must retry (paper Rule 9)
+            if self._state_fingerprint() == before:
+                return False
             self.move_history.append(move)
             self.turn = chess.BLACK if self.turn == chess.WHITE else chess.WHITE
-            # Keep cb.turn in sync: cb.push() already advances it for CLASSICAL,
-            # but split/merge/entangle never call push().
             self.classical_board.turn = self.turn
 
         return success
@@ -107,30 +120,71 @@ class QuantumBoard:
         from_sq = move.from_square
         to_sq = move.to_square
 
-        # NDO: if destination has quantum pieces, collapse them first
+        variant = classify(from_sq, to_sq, cb)
+
+        # Castling: delegate to dedicated handler
+        if variant in (Variant.CASTLE_KINGSIDE, Variant.CASTLE_QUEENSIDE):
+            return self._apply_castling(move, variant)
+
+        # Slide variants: measure quantum pieces on the path (quantum blockers)
+        if variant in (Variant.STANDARD_SLIDE, Variant.CAPTURE_SLIDE, Variant.BLOCKED_SLIDE):
+            for psq in path_squares(from_sq, to_sq):
+                if self.is_quantum_square(psq):
+                    results = self.measurement.resolve_ndo(psq)
+                    self.measurement_log.extend(results)
+            # After collapse: if path is classically blocked, slide fails
+            for psq in path_squares(from_sq, to_sq):
+                if cb.piece_at(psq) is not None:
+                    return False
+
+        # NDO: collapse quantum pieces at destination
         if self.is_quantum_square(to_sq):
             results = self.measurement.resolve_ndo(to_sq)
             self.measurement_log.extend(results)
 
-        # NDO: if source has quantum pieces, collapse them too
+        # NDO: collapse quantum pieces at source (edge case)
         if self.is_quantum_square(from_sq):
             results = self.measurement.resolve_ndo(from_sq)
             self.measurement_log.extend(results)
 
-        # Also collapse quantum pieces at destination (again, post-NDO cascade)
-        if self.is_quantum_square(to_sq):
-            results = self.measurement.measure_square(to_sq)
-            self.measurement_log.extend(results)
+        # Pseudo-legal only — no check/checkmate filtering (paper rule)
+        for m in cb.pseudo_legal_moves:
+            if m.from_square == from_sq and m.to_square == to_sq:
+                if m.promotion == move.promotion:
+                    cb.push(m)
+                    return True
 
-        # Build python-chess Move
-        chess_move = chess.Move(from_sq, to_sq, move.promotion)
+        return False
 
-        # Try exact move first
-        if chess_move in cb.legal_moves:
-            cb.push(chess_move)
-            return True
+    # ------------------------------------------------------------------
+    # Castling move
+    # ------------------------------------------------------------------
 
-        # Try pseudo-legal (no check filter needed)
+    def _apply_castling(self, move: Move, variant: Variant) -> bool:
+        cb = self.classical_board
+        from_sq = move.from_square
+        to_sq = move.to_square
+        rank = chess.square_rank(from_sq)
+
+        # Path squares that must be empty for castling to proceed
+        if variant == Variant.CASTLE_KINGSIDE:
+            path = [chess.square(5, rank), chess.square(6, rank)]      # f, g files
+        else:
+            path = [chess.square(1, rank), chess.square(2, rank),      # b, c, d files
+                    chess.square(3, rank)]
+
+        # Measure any quantum pieces on the castling path
+        for sq in path:
+            if self.is_quantum_square(sq):
+                results = self.measurement.resolve_ndo(sq)
+                self.measurement_log.extend(results)
+
+        # M0: any path square classically occupied after collapse → fail
+        for sq in path:
+            if cb.piece_at(sq) is not None:
+                return False
+
+        # Path clear → apply castling
         for m in cb.pseudo_legal_moves:
             if m.from_square == from_sq and m.to_square == to_sq:
                 cb.push(m)
@@ -171,7 +225,7 @@ class QuantumBoard:
 
         # Source amplitude: 1.0 (piece was definite)
         source_amp = complex(1.0, 0.0)
-        amp_each = Move.split_amplitude(source_amp)  # 1/sqrt(2)
+        amp_each = Move.split_amplitude(source_amp)  # i/sqrt(2) per paper eq. 8a
 
         # Handle classical pieces at target squares (captures)
         for t in (t1, t2):
@@ -203,41 +257,34 @@ class QuantumBoard:
         s1, s2 = move.sources
         to_sq = move.to_square
 
-        # Find quantum pieces at s1 and s2
         qids1 = qs.ids_at(s1)
         qids2 = qs.ids_at(s2)
-
         if not qids1 or not qids2:
             return False
 
+        # Same-lineage only: both source squares must belong to the same quantum piece
+        if qids1[0] != qids2[0]:
+            return False
+
         qid1 = qids1[0]
-        qid2 = qids2[0]
-        same_piece = (qid1 == qid2)  # merging two positions of the same quantum piece
-
         qp1 = qs.get(qid1)
-        qp2 = qs.get(qid2)
-
-        if qp1 is None or qp2 is None:
+        if qp1 is None:
             return False
         if qp1.piece.color != self.turn:
             return False
-        if not same_piece and qp1.piece.piece_type != qp2.piece.piece_type:
-            return False
 
-        # Retrieve amplitudes at the source squares
+        # Retrieve amplitudes at source squares (same piece → use qp1 for both)
         amp1 = (qp1.amplitudes[qp1.positions.index(s1)]
                 if s1 in qp1.positions else complex(0))
-        if same_piece:
-            amp2 = (qp1.amplitudes[qp1.positions.index(s2)]
-                    if s2 in qp1.positions else complex(0))
-        else:
-            amp2 = (qp2.amplitudes[qp2.positions.index(s2)]
-                    if s2 in qp2.positions else complex(0))
+        amp2 = (qp1.amplitudes[qp1.positions.index(s2)]
+                if s2 in qp1.positions else complex(0))
 
-        merged_amp = Move.merge_amplitude(amp1, amp2)
-        merged_prob = abs(merged_amp) ** 2
+        # Paper Umerge (eq. 10): target = -i(α+β)/√2, residual at s2 = (α-β)/√2
+        target_amp   = Move.merge_target_amplitude(amp1, amp2)
+        residual_amp = Move.merge_residual_amplitude(amp1, amp2)
+        target_prob   = abs(target_amp) ** 2
+        residual_prob = abs(residual_amp) ** 2
 
-        # Save piece type before any removals
         piece_to_place = qp1.piece
 
         # NDO check on destination
@@ -245,57 +292,44 @@ class QuantumBoard:
             results = self.measurement.resolve_ndo(to_sq)
             self.measurement_log.extend(results)
 
-        # Remove source positions (order matters for same-piece case: remove s1 first)
+        # Remove source positions from the single quantum piece
         qp1.remove_position(s1)
-        if same_piece:
-            # qp1 == qp2; remove s2 from the same object after s1 is gone
-            qp1.remove_position(s2)
-        else:
-            qp2.remove_position(s2)
+        qp1.remove_position(s2)
 
-        # Remove quantum pieces that became empty
+        # Remove quantum piece if now empty
         if len(qp1.positions) == 0:
             qs.remove(qid1)
-        if not same_piece:
-            qp2_live = qs.get(qid2)
-            if qp2_live is not None and len(qp2_live.positions) == 0:
-                qs.remove(qid2)
 
-        # Destructive interference: piece annihilates, nothing placed classically
-        if merged_prob < 1e-9:
+        # Full destructive interference → piece annihilates
+        if target_prob < 1e-9 and residual_prob < 1e-9:
             qs._rebuild_index()
             return True
 
-        # Constructive merge: collapse to classical at destination
-        existing = cb.piece_at(to_sq)
-        if existing is not None:
-            cb.remove_piece_at(to_sq)
-        cb.set_piece_at(to_sq, piece_to_place)
+        # Build output: collect non-negligible positions and amplitudes
+        out_positions = []
+        out_amplitudes = []
+        if target_prob >= 1e-9:
+            out_positions.append(to_sq)
+            out_amplitudes.append(target_amp)
+        if residual_prob >= 1e-9:
+            out_positions.append(s2)
+            out_amplitudes.append(residual_amp)
+
+        if len(out_positions) == 1:
+            # Single outcome → collapse to classical
+            existing = cb.piece_at(out_positions[0])
+            if existing is not None:
+                cb.remove_piece_at(out_positions[0])
+            cb.set_piece_at(out_positions[0], piece_to_place)
+        else:
+            # Superposition survives (unequal source amplitudes) → quantum piece
+            total_prob = sum(abs(a) ** 2 for a in out_amplitudes)
+            norm = math.sqrt(total_prob)
+            normed = [a / norm for a in out_amplitudes]
+            qs.create_superposition(piece_to_place, out_positions, normed)
 
         qs._rebuild_index()
         return True
-
-    # ------------------------------------------------------------------
-    # Entangle move
-    # ------------------------------------------------------------------
-
-    def _apply_entangle(self, move: Move) -> bool:
-        sq1, sq2 = move.sources
-        qids1 = self.quantum_state.ids_at(sq1)
-        qids2 = self.quantum_state.ids_at(sq2)
-        if not qids1 or not qids2:
-            return False
-        qid1 = qids1[0]
-        qid2 = qids2[0]
-        if qid1 == qid2:
-            return False  # cannot entangle a piece with itself
-        qp1 = self.quantum_state.get(qid1)
-        qp2 = self.quantum_state.get(qid2)
-        if qp1 is None or qp2 is None:
-            return False
-        if qp1.piece.color != self.turn or qp2.piece.color != self.turn:
-            return False
-        return self.quantum_state.entangle(qid1, qid2)
 
     # ------------------------------------------------------------------
     # Superposition (user-facing helper for GUI)

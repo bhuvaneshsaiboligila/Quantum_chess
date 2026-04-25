@@ -1,14 +1,19 @@
 """
-engine/move.py – Move types: classical, split, merge, and entangle.
+engine/move.py – Move types: classical, split, and merge.
 
-Four move types (from the research paper):
+Three move types (Cantwell 2019):
   CLASSICAL  : standard chess move; one source → one destination
-  SPLIT      : one source → two destinations (50/50 probability split)
-  MERGE      : two sources → one destination (amplitude recombination)
-  ENTANGLE   : link two quantum pieces so they collapse together
+  SPLIT      : one source → two destinations (superposition via Usplit)
+  MERGE      : two sources → one destination (amplitude recombination via Umerge)
 
-Split amplitude rule: each target gets amplitude = source_amplitude / sqrt(2)
-Merge amplitude rule: destination gets sum of both source amplitudes (interference)
+Split unitary (paper eq. 8a):
+  Usplit|001⟩ = (i/√2)|010⟩ + (i/√2)|100⟩
+  Each target receives source_amplitude * i/sqrt(2).
+
+Merge unitary (paper eq. 10):
+  For state α|010⟩ + β|100⟩:
+    target amplitude  = -i(α+β)/√2
+    residual at s2    = (α-β)/√2
 """
 
 from __future__ import annotations
@@ -22,7 +27,6 @@ class MoveType(Enum):
     CLASSICAL = auto()
     SPLIT     = auto()
     MERGE     = auto()
-    ENTANGLE  = auto()
 
 
 class Move:
@@ -74,14 +78,6 @@ class Move:
             self.sources = tuple(sources)  # type: ignore[assignment]
             self.targets = None
 
-        elif move_type == MoveType.ENTANGLE:
-            assert sources is not None, "Entangle move requires sources (two squares)"
-            assert len(sources) == 2, "Entangle move requires exactly 2 source squares"
-            self.from_square = None
-            self.to_square = None
-            self.sources = tuple(sources)  # type: ignore[assignment]
-            self.targets = None
-
         else:
             raise ValueError(f"Unknown MoveType: {move_type}")
 
@@ -106,23 +102,24 @@ class Move:
               to_sq: chess.Square) -> "Move":
         return cls(MoveType.MERGE, sources=(src1, src2), to_square=to_sq)
 
-    @classmethod
-    def entangle(cls, sq1: chess.Square, sq2: chess.Square) -> "Move":
-        return cls(MoveType.ENTANGLE, sources=(sq1, sq2))
-
     # ------------------------------------------------------------------
-    # Amplitude rules
+    # Amplitude rules (paper-faithful)
     # ------------------------------------------------------------------
 
     @staticmethod
     def split_amplitude(source_amplitude: complex) -> complex:
-        """Each split target receives amplitude / sqrt(2)."""
-        return source_amplitude / math.sqrt(2)
+        """Each split target receives source * i/√2  (paper eq. 8a)."""
+        return source_amplitude * complex(0, 1) / math.sqrt(2)
 
     @staticmethod
-    def merge_amplitude(amp1: complex, amp2: complex) -> complex:
-        """Merged destination gets sum of both amplitudes (interference)."""
-        return amp1 + amp2
+    def merge_target_amplitude(amp_s1: complex, amp_s2: complex) -> complex:
+        """Destination amplitude after Umerge: -i(α+β)/√2  (paper eq. 10)."""
+        return -complex(0, 1) * (amp_s1 + amp_s2) / math.sqrt(2)
+
+    @staticmethod
+    def merge_residual_amplitude(amp_s1: complex, amp_s2: complex) -> complex:
+        """Residual amplitude remaining at s2 after Umerge: (α-β)/√2  (paper eq. 10)."""
+        return (amp_s1 - amp_s2) / math.sqrt(2)
 
     # ------------------------------------------------------------------
     # Conversion helpers
@@ -159,11 +156,6 @@ class Move:
             s1, s2 = self.sources
             assert s1 != s2, "Merge sources must be different squares"
 
-        elif self.move_type == MoveType.ENTANGLE:
-            assert self.sources is not None
-            s1, s2 = self.sources
-            assert s1 != s2, "Entangle sources must be different squares"
-
     # ------------------------------------------------------------------
     # Representation
     # ------------------------------------------------------------------
@@ -176,13 +168,10 @@ class Move:
             t1, t2 = self.targets
             return (f"Move.split({chess.square_name(self.from_square)}"
                     f"→{chess.square_name(t1)},{chess.square_name(t2)})")
-        elif self.move_type == MoveType.MERGE:
+        else:  # MERGE
             s1, s2 = self.sources
             return (f"Move.merge({chess.square_name(s1)},{chess.square_name(s2)}"
                     f"→{chess.square_name(self.to_square)})")
-        else:
-            s1, s2 = self.sources
-            return f"Move.entangle({chess.square_name(s1)},{chess.square_name(s2)})"
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Move):
@@ -196,18 +185,14 @@ class Move:
         elif self.move_type == MoveType.SPLIT:
             return (self.from_square == other.from_square and
                     set(self.targets) == set(other.targets))
-        elif self.move_type == MoveType.MERGE:
+        else:  # MERGE
             return (set(self.sources) == set(other.sources) and
                     self.to_square == other.to_square)
-        else:  # ENTANGLE
-            return set(self.sources) == set(other.sources)
 
     def __hash__(self) -> int:
         if self.move_type == MoveType.CLASSICAL:
             return hash((self.move_type, self.from_square, self.to_square, self.promotion))
         elif self.move_type == MoveType.SPLIT:
             return hash((self.move_type, self.from_square, frozenset(self.targets)))
-        elif self.move_type == MoveType.MERGE:
+        else:  # MERGE
             return hash((self.move_type, frozenset(self.sources), self.to_square))
-        else:  # ENTANGLE
-            return hash((self.move_type, frozenset(self.sources)))

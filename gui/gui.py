@@ -5,7 +5,7 @@ Controls
 --------
   Left-click      : select / move (classical)
   Q + click       : start a split move (click two targets)
-  E + click       : start an entangle operation (click two quantum pieces)
+  M + click       : start a merge move (click two quantum source squares, then target)
   R               : restart game
   Escape          : cancel current selection
 
@@ -325,7 +325,7 @@ class Renderer:
         self.screen.blit(q_lbl, (BX, panel_y + 22))
 
         # Controls hint
-        hint = "[Q]split  [E]entangle  [R]restart  [Esc]cancel"
+        hint = "[Q]split  [M]merge  [R]restart  [Esc]cancel"
         hint_lbl = self.font_label.render(hint, True, (160, 160, 160))
         self.screen.blit(hint_lbl, (BX, panel_y + 46))
 
@@ -361,9 +361,9 @@ class Renderer:
 # ---------------------------------------------------------------------------
 
 class InputMode:
-    NORMAL   = "Normal"
-    SPLIT    = "Split"
-    ENTANGLE = "Entangle"
+    NORMAL = "Normal"
+    SPLIT  = "Split"
+    MERGE  = "Merge"
 
 
 # ---------------------------------------------------------------------------
@@ -379,7 +379,8 @@ class GameState:
         self.mode: str = InputMode.NORMAL
         self.split_source: Optional[chess.Square] = None
         self.split_first_target: Optional[chess.Square] = None
-        self.entangle_first_sq: Optional[chess.Square] = None
+        self.merge_source1: Optional[chess.Square] = None
+        self.merge_source2: Optional[chess.Square] = None
         self.game_over_text: str = ""
         self.ai_thinking: bool = False
 
@@ -390,10 +391,12 @@ class GameState:
             if self.split_first_target is None:
                 return "Split – select target 1"
             return "Split – select target 2"
-        if self.mode == InputMode.ENTANGLE:
-            if self.entangle_first_sq is None:
-                return "Entangle – click piece 1"
-            return "Entangle – click piece 2"
+        if self.mode == InputMode.MERGE:
+            if self.merge_source1 is None:
+                return "Merge – click quantum piece 1"
+            if self.merge_source2 is None:
+                return "Merge – click quantum piece 2"
+            return "Merge – click destination"
         return "Normal"
 
     def reset(self):
@@ -514,7 +517,8 @@ class Game:
             state.legal_targets = []
             state.split_source = None
             state.split_first_target = None
-            state.entangle_first_sq = None
+            state.merge_source1 = None
+            state.merge_source2 = None
             return
 
         if key == pygame.K_q and not state.game_over_text:
@@ -524,10 +528,12 @@ class Game:
                 state.split_first_target = None
             return
 
-        if key == pygame.K_e and not state.game_over_text:
+        if key == pygame.K_m and not state.game_over_text:
             if state.board.turn == chess.WHITE:
-                state.mode = InputMode.ENTANGLE
-                state.entangle_first_sq = None
+                state.mode = InputMode.MERGE
+                state.merge_source1 = None
+                state.merge_source2 = None
+                state.legal_targets = []
             return
 
     def _handle_click(self, sq: chess.Square):
@@ -542,8 +548,8 @@ class Game:
 
         if state.mode == InputMode.SPLIT:
             self._handle_split_click(sq)
-        elif state.mode == InputMode.ENTANGLE:
-            self._handle_entangle_click(sq)
+        elif state.mode == InputMode.MERGE:
+            self._handle_merge_click(sq)
         else:
             self._handle_normal_click(sq)
 
@@ -628,34 +634,49 @@ class Game:
         state.legal_targets = []
 
     # ------------------------------------------------------------------
-    # Entangle click FSM: click qpiece1 → click qpiece2
+    # Merge click FSM: click quantum source1 → source2 → destination
     # ------------------------------------------------------------------
 
-    def _handle_entangle_click(self, sq: chess.Square):
+    def _handle_merge_click(self, sq: chess.Square):
         state = self.state
         board = state.board
 
-        # Verify there is a white quantum piece at this square
-        qids = board.quantum_state.ids_at(sq)
-        if not qids:
-            return
-        qp = board.quantum_state.get(qids[0])
-        if qp is None or qp.piece.color != chess.WHITE:
+        def _is_white_quantum(square: chess.Square) -> bool:
+            qids = board.quantum_state.ids_at(square)
+            if not qids:
+                return False
+            qp = board.quantum_state.get(qids[0])
+            return qp is not None and qp.piece.color == chess.WHITE
+
+        if state.merge_source1 is None:
+            if _is_white_quantum(sq):
+                state.merge_source1 = sq
             return
 
-        if state.entangle_first_sq is None:
-            state.entangle_first_sq = sq
+        if state.merge_source2 is None:
+            if _is_white_quantum(sq) and sq != state.merge_source1:
+                state.merge_source2 = sq
+                # Show legal merge destinations reachable from both sources
+                rules = board.rules
+                merges = rules.legal_merge_moves(chess.WHITE)
+                state.legal_targets = list({
+                    m.to_square for m in merges
+                    if set(m.sources) == {state.merge_source1, state.merge_source2}
+                })
             return
 
-        if sq != state.entangle_first_sq:
-            move = Move.entangle(state.entangle_first_sq, sq)
+        # Third click: destination
+        if sq in state.legal_targets:
+            move = Move.merge(state.merge_source1, state.merge_source2, sq)
             success = board.apply_move(move)
             if success:
                 state.last_move = move
                 state._check_game_over()
 
         state.mode = InputMode.NORMAL
-        state.entangle_first_sq = None
+        state.merge_source1 = None
+        state.merge_source2 = None
+        state.legal_targets = []
 
     # ------------------------------------------------------------------
     # AI turn
