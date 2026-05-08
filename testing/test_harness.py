@@ -99,9 +99,6 @@ class QuantumChessTester:
 
                 current_player = board.turn
 
-                # --- sync classical_board.turn (split/merge aftermath) ---
-                self._sync_cb_turn(board)
-
                 # --- choose a move ---
                 move = self._choose_move(board, current_player)
                 if move is None:
@@ -155,9 +152,6 @@ class QuantumChessTester:
                             events.append(f"FALLBACK_USED:{fallback!r}")
                         except Exception:
                             pass
-
-                # Sync again after the move (split/merge don't call push())
-                self._sync_cb_turn(board)
 
                 # Collect collapse events from measurement log
                 new_measurements = board.measurement_log[-5:]
@@ -273,8 +267,13 @@ class QuantumChessTester:
                     tmp.push(chess_move)
                     if not tmp.is_attacked_by(enemy, m.to_square):
                         safe.append(m)
-            except Exception:
-                pass
+            except Exception as e:
+                import traceback
+                self.logger.log_error("move_eval_exception", f"Move evaluation exception: {e}",
+                                      0, traceback.format_exc())
+                print(f"[HARNESS ERROR] {e}")
+                traceback.print_exc()
+                # Mark this as a failed move in the log
         if safe:
             return random.choice(safe)
 
@@ -309,7 +308,6 @@ class QuantumChessTester:
     def _fallback_classical(self, board: QuantumBoard,
                              color: chess.Color) -> Optional[Move]:
         """Emergency fallback: any classical move."""
-        self._sync_cb_turn(board)
         try:
             moves = board.rules.legal_classical_moves(color)
             return random.choice(moves) if moves else None
@@ -340,32 +338,7 @@ class QuantumChessTester:
                     ),
                 })
 
-        # 2. Entanglement symmetry
-        for qid, qp in qs.pieces.items():
-            if qp.entangled_with is not None:
-                partner = qs.get(qp.entangled_with)
-                if partner is None:
-                    issues.append({
-                        "type": "broken_entanglement",
-                        "qid": qid,
-                        "partner_id": qp.entangled_with,
-                        "message": (
-                            f"Piece id={qid} entangled_with={qp.entangled_with} "
-                            f"but partner does not exist in QuantumState"
-                        ),
-                    })
-                elif partner.entangled_with != qid:
-                    issues.append({
-                        "type": "asymmetric_entanglement",
-                        "qid": qid,
-                        "partner_id": qp.entangled_with,
-                        "message": (
-                            f"Entanglement asymmetry: {qid}→{qp.entangled_with} "
-                            f"but back-link is {partner.entangled_with}"
-                        ),
-                    })
-
-        # 3. NDO (No Double Occupancy) check
+        # 2. NDO (No Double Occupancy) check
         for sq, qids in qs._sq_index.items():
             classical_piece = cb.piece_at(sq)
             for qid in qids:
@@ -409,7 +382,7 @@ class QuantumChessTester:
         # 5. King existence sanity
         for color, name in ((chess.WHITE, "white"), (chess.BLACK, "black")):
             prob = board.measurement.king_existence_probability(color)
-            if prob < 0.0 or prob > 2.0:
+            if prob < 0.0 or prob > 1.0 + 1e-9:
                 issues.append({
                     "type": "king_prob_out_of_range",
                     "color": name,
@@ -422,16 +395,6 @@ class QuantumChessTester:
     # ------------------------------------------------------------------
     # Helpers
     # ------------------------------------------------------------------
-
-    @staticmethod
-    def _sync_cb_turn(board: QuantumBoard) -> None:
-        """
-        After split/merge moves the engine does not call chess.Board.push(),
-        so classical_board.turn can desync from board.turn. Fix it here.
-        This is a workaround for a known engine limitation.
-        """
-        if board.classical_board.turn != board.turn:
-            board.classical_board.turn = board.turn
 
     @staticmethod
     def _print_game_summary(game_id: int, summary: dict) -> None:

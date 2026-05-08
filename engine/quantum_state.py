@@ -7,6 +7,9 @@ Design principles (from the research paper):
     their amplitudes add before squaring to get probability.
   - Entanglement: linked pieces collapse together (correlated measurement).
   - Normalization is enforced after every mutation.
+
+# Entanglement and interference APIs are defined but not yet integrated
+# into the gameplay pipeline. They are reserved for v2.
 """
 
 import random
@@ -244,6 +247,7 @@ class QuantumState:
 
         chosen = qp.collapse()
 
+        # NOT INTEGRATED: entanglement cascade reserved for v2
         # Break entanglement link on partner
         if qp.entangled_with is not None:
             partner = self._pieces.get(qp.entangled_with)
@@ -253,14 +257,14 @@ class QuantumState:
         partner_id = qp.entangled_with
         self.remove(qid)
 
-        # Cascade: collapse entangled partner
+        # NOT INTEGRATED: cascade collapse of entangled partner reserved for v2
         if partner_id is not None and partner_id in self._pieces:
             self.collapse_piece(partner_id)
 
         return chosen
 
     # ------------------------------------------------------------------
-    # Entanglement
+    # Entanglement — NOT INTEGRATED: reserved for v2
     # ------------------------------------------------------------------
 
     def entangle(self, qid1: int, qid2: int) -> bool:
@@ -283,7 +287,7 @@ class QuantumState:
         qp.entangled_with = None
 
     # ------------------------------------------------------------------
-    # Interference
+    # Interference — NOT INTEGRATED: reserved for v2
     # ------------------------------------------------------------------
 
     def apply_interference(self, qid: int, sq: chess.Square,

@@ -29,17 +29,20 @@ class MeasurementResult:
     """Record of a single collapse event."""
 
     def __init__(self, qid: int, chosen_square: chess.Square,
-                 piece: chess.Piece, discarded_squares: list[chess.Square]):
+                 piece: chess.Piece, discarded_squares: list[chess.Square],
+                 captured_piece: Optional[chess.Piece] = None):
         self.qid = qid
         self.chosen_square = chosen_square
         self.piece = piece
         self.discarded_squares = discarded_squares
+        self.captured_piece = captured_piece
 
     def __repr__(self) -> str:
         import chess as _chess
+        cap = (f", captured={self.captured_piece}" if self.captured_piece is not None else "")
         return (f"MeasurementResult(qid={self.qid}, "
                 f"piece={self.piece}, "
-                f"landed={_chess.square_name(self.chosen_square)})")
+                f"landed={_chess.square_name(self.chosen_square)}{cap})")
 
 
 class MeasurementSystem:
@@ -140,16 +143,23 @@ class MeasurementSystem:
 
         # Place the piece on the classical board
         cb = self._board.classical_board
+        collapsed_piece = qp.piece
         existing = cb.piece_at(chosen)
 
+        captured: Optional[chess.Piece] = None
         if existing is not None:
-            # Capture: remove whatever is there (friend or foe)
+            if existing.color == collapsed_piece.color:
+                raise AssertionError(
+                    f"Collapse onto friendly piece at {chess.square_name(chosen)} — NDO failed upstream"
+                )
+            # Enemy capture: remove the enemy before placing
+            captured = existing
             cb.remove_piece_at(chosen)
 
-        cb.set_piece_at(chosen, qp.piece)
+        cb.set_piece_at(chosen, collapsed_piece)
         qs._rebuild_index()
 
-        return MeasurementResult(qid, chosen, qp.piece, discarded)
+        return MeasurementResult(qid, chosen, collapsed_piece, discarded, captured_piece=captured)
 
     # ------------------------------------------------------------------
     # Existence probability helpers
@@ -163,13 +173,21 @@ class MeasurementSystem:
         cb = self._board.classical_board
         # Check classical board
         king_sq = cb.king(color)
-        classical_prob = 1.0 if king_sq is not None else 0.0
+        classical_king_exists = king_sq is not None
+        classical_prob = 1.0 if classical_king_exists else 0.0
 
         # Sum quantum contributions
         quantum_prob = 0.0
+        quantum_king_exists = False
         for qp in self._board.quantum_state.pieces.values():
             if qp.piece.color == color and qp.piece.piece_type == chess.KING:
+                quantum_king_exists = True
                 quantum_prob += qp.total_existence_probability()
+
+        # Classical and quantum king must never coexist — that means NDO failed
+        assert not (classical_king_exists and quantum_king_exists), (
+            f"Classical and quantum {'white' if color else 'black'} king coexist — invalid state"
+        )
 
         # A king can exist either classically or in superposition, not both
         # (the moment it collapses from quantum it appears on classical board)

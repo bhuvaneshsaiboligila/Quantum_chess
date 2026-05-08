@@ -1,34 +1,32 @@
 {
-  "game_id": 1,
-  "start_time": "2026-05-08T11:06:11.321203",
-  "end_time": "2026-05-08T11:06:11.334210",
-  "result": "black",
+  "game_id": 6,
+  "start_time": "2026-04-25T10:26:54.746307",
+  "end_time": "2026-04-25T10:26:54.755956",
+  "result": "white",
   "termination": "king_captured",
-  "total_moves": 24,
-  "quantum_moves": 5,
+  "total_moves": 19,
+  "quantum_moves": 4,
   "errors": [],
   "validation_issues": [],
   "moves": [
     {
       "move_number": 1,
       "player": "white",
-      "move_type": "classical",
+      "move_type": "split",
       "move": {
-        "type": "classical",
-        "from": "f2",
-        "to": "f4",
-        "promotion": null
+        "type": "split",
+        "from": "b1",
+        "targets": [
+          "a3",
+          "c3"
+        ]
       },
       "board_state": {
-        "fen": "rnbqkbnr/pppppppp/8/8/5P2/8/PPPPP1PP/RNBQKBNR b KQkq - 0 1",
+        "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/R1BQKBNR b KQkq - 0 1",
         "turn": "black",
         "classical_pieces": {
           "a1": {
             "type": "rook",
-            "color": "white"
-          },
-          "b1": {
-            "type": "knight",
             "color": "white"
           },
           "c1": {
@@ -75,15 +73,15 @@
             "type": "pawn",
             "color": "white"
           },
+          "f2": {
+            "type": "pawn",
+            "color": "white"
+          },
           "g2": {
             "type": "pawn",
             "color": "white"
           },
           "h2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "f4": {
             "type": "pawn",
             "color": "white"
           },
@@ -152,10 +150,25 @@
             "color": "black"
           }
         },
-        "quantum_pieces": [],
+        "quantum_pieces": [
+          {
+            "id": 60,
+            "piece_type": "knight",
+            "color": "white",
+            "positions": [
+              "a3",
+              "c3"
+            ],
+            "probabilities": [
+              0.5,
+              0.5
+            ],
+            "entangled_with": null
+          }
+        ],
         "white_king_prob": 1.0,
         "black_king_prob": 1.0,
-        "quantum_piece_count": 0
+        "quantum_piece_count": 1
       },
       "events": [],
       "validation_issues": []
@@ -163,25 +176,19 @@
     {
       "move_number": 2,
       "player": "black",
-      "move_type": "split",
+      "move_type": "classical",
       "move": {
-        "type": "split",
-        "from": "b8",
-        "targets": [
-          "a6",
-          "c6"
-        ]
+        "type": "classical",
+        "from": "a7",
+        "to": "a5",
+        "promotion": null
       },
       "board_state": {
-        "fen": "r1bqkbnr/pppppppp/8/8/5P2/8/PPPPP1PP/RNBQKBNR w KQkq - 0 1",
+        "fen": "rnbqkbnr/1ppppppp/8/p7/8/8/PPPPPPPP/R1BQKBNR w KQkq - 0 2",
         "turn": "white",
         "classical_pieces": {
           "a1": {
             "type": "rook",
-            "color": "white"
-          },
-          "b1": {
-            "type": "knight",
             "color": "white"
           },
           "c1": {
@@ -228,6 +235,10 @@
             "type": "pawn",
             "color": "white"
           },
+          "f2": {
+            "type": "pawn",
+            "color": "white"
+          },
           "g2": {
             "type": "pawn",
             "color": "white"
@@ -236,11 +247,7 @@
             "type": "pawn",
             "color": "white"
           },
-          "f4": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "a7": {
+          "a5": {
             "type": "pawn",
             "color": "black"
           },
@@ -276,6 +283,10 @@
             "type": "rook",
             "color": "black"
           },
+          "b8": {
+            "type": "knight",
+            "color": "black"
+          },
           "c8": {
             "type": "bishop",
             "color": "black"
@@ -303,12 +314,12 @@
         },
         "quantum_pieces": [
           {
-            "id": 0,
+            "id": 60,
             "piece_type": "knight",
-            "color": "black",
+            "color": "white",
             "positions": [
-              "a6",
-              "c6"
+              "a3",
+              "c3"
             ],
             "probabilities": [
               0.5,
@@ -327,361 +338,19 @@
     {
       "move_number": 3,
       "player": "white",
-      "move_type": "split",
-      "move": {
-        "type": "split",
-        "from": "g1",
-        "targets": [
-          "f3",
-          "h3"
-        ]
-      },
-      "board_state": {
-        "fen": "r1bqkbnr/pppppppp/8/8/5P2/8/PPPPP1PP/RNBQKB1R b KQkq - 0 1",
-        "turn": "black",
-        "classical_pieces": {
-          "a1": {
-            "type": "rook",
-            "color": "white"
-          },
-          "b1": {
-            "type": "knight",
-            "color": "white"
-          },
-          "c1": {
-            "type": "bishop",
-            "color": "white"
-          },
-          "d1": {
-            "type": "queen",
-            "color": "white"
-          },
-          "e1": {
-            "type": "king",
-            "color": "white"
-          },
-          "f1": {
-            "type": "bishop",
-            "color": "white"
-          },
-          "h1": {
-            "type": "rook",
-            "color": "white"
-          },
-          "a2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "b2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "c2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "d2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "e2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "g2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "h2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "f4": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "a7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "b7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "c7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "d7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "e7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "f7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "g7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "h7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "a8": {
-            "type": "rook",
-            "color": "black"
-          },
-          "c8": {
-            "type": "bishop",
-            "color": "black"
-          },
-          "d8": {
-            "type": "queen",
-            "color": "black"
-          },
-          "e8": {
-            "type": "king",
-            "color": "black"
-          },
-          "f8": {
-            "type": "bishop",
-            "color": "black"
-          },
-          "g8": {
-            "type": "knight",
-            "color": "black"
-          },
-          "h8": {
-            "type": "rook",
-            "color": "black"
-          }
-        },
-        "quantum_pieces": [
-          {
-            "id": 0,
-            "piece_type": "knight",
-            "color": "black",
-            "positions": [
-              "a6",
-              "c6"
-            ],
-            "probabilities": [
-              0.5,
-              0.5
-            ],
-            "entangled_with": null
-          },
-          {
-            "id": 1,
-            "piece_type": "knight",
-            "color": "white",
-            "positions": [
-              "f3",
-              "h3"
-            ],
-            "probabilities": [
-              0.5,
-              0.5
-            ],
-            "entangled_with": null
-          }
-        ],
-        "white_king_prob": 1.0,
-        "black_king_prob": 1.0,
-        "quantum_piece_count": 2
-      },
-      "events": [],
-      "validation_issues": []
-    },
-    {
-      "move_number": 4,
-      "player": "black",
-      "move_type": "merge",
-      "move": {
-        "type": "merge",
-        "sources": [
-          "a6",
-          "c6"
-        ],
-        "to": "b4"
-      },
-      "board_state": {
-        "fen": "r1bqkbnr/pppppppp/8/8/1n3P2/8/PPPPP1PP/RNBQKB1R w KQkq - 0 1",
-        "turn": "white",
-        "classical_pieces": {
-          "a1": {
-            "type": "rook",
-            "color": "white"
-          },
-          "b1": {
-            "type": "knight",
-            "color": "white"
-          },
-          "c1": {
-            "type": "bishop",
-            "color": "white"
-          },
-          "d1": {
-            "type": "queen",
-            "color": "white"
-          },
-          "e1": {
-            "type": "king",
-            "color": "white"
-          },
-          "f1": {
-            "type": "bishop",
-            "color": "white"
-          },
-          "h1": {
-            "type": "rook",
-            "color": "white"
-          },
-          "a2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "b2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "c2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "d2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "e2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "g2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "h2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "b4": {
-            "type": "knight",
-            "color": "black"
-          },
-          "f4": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "a7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "b7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "c7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "d7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "e7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "f7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "g7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "h7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "a8": {
-            "type": "rook",
-            "color": "black"
-          },
-          "c8": {
-            "type": "bishop",
-            "color": "black"
-          },
-          "d8": {
-            "type": "queen",
-            "color": "black"
-          },
-          "e8": {
-            "type": "king",
-            "color": "black"
-          },
-          "f8": {
-            "type": "bishop",
-            "color": "black"
-          },
-          "g8": {
-            "type": "knight",
-            "color": "black"
-          },
-          "h8": {
-            "type": "rook",
-            "color": "black"
-          }
-        },
-        "quantum_pieces": [
-          {
-            "id": 1,
-            "piece_type": "knight",
-            "color": "white",
-            "positions": [
-              "f3",
-              "h3"
-            ],
-            "probabilities": [
-              0.5,
-              0.5
-            ],
-            "entangled_with": null
-          }
-        ],
-        "white_king_prob": 1.0,
-        "black_king_prob": 1.0,
-        "quantum_piece_count": 1
-      },
-      "events": [],
-      "validation_issues": []
-    },
-    {
-      "move_number": 5,
-      "player": "white",
       "move_type": "classical",
       "move": {
         "type": "classical",
-        "from": "e1",
-        "to": "f2",
+        "from": "a2",
+        "to": "a4",
         "promotion": null
       },
       "board_state": {
-        "fen": "r1bqkbnr/pppppppp/8/8/1n3P2/8/PPPPPKPP/RNBQ1B1R b kq - 1 1",
+        "fen": "rnbqkbnr/1ppppppp/8/p7/P7/8/1PPPPPPP/R1BQKBNR b KQkq - 0 2",
         "turn": "black",
         "classical_pieces": {
           "a1": {
             "type": "rook",
-            "color": "white"
-          },
-          "b1": {
-            "type": "knight",
             "color": "white"
           },
           "c1": {
@@ -692,16 +361,20 @@
             "type": "queen",
             "color": "white"
           },
+          "e1": {
+            "type": "king",
+            "color": "white"
+          },
           "f1": {
             "type": "bishop",
             "color": "white"
           },
-          "h1": {
-            "type": "rook",
+          "g1": {
+            "type": "knight",
             "color": "white"
           },
-          "a2": {
-            "type": "pawn",
+          "h1": {
+            "type": "rook",
             "color": "white"
           },
           "b2": {
@@ -721,7 +394,7 @@
             "color": "white"
           },
           "f2": {
-            "type": "king",
+            "type": "pawn",
             "color": "white"
           },
           "g2": {
@@ -732,15 +405,11 @@
             "type": "pawn",
             "color": "white"
           },
-          "b4": {
-            "type": "knight",
-            "color": "black"
-          },
-          "f4": {
+          "a4": {
             "type": "pawn",
             "color": "white"
           },
-          "a7": {
+          "a5": {
             "type": "pawn",
             "color": "black"
           },
@@ -776,6 +445,10 @@
             "type": "rook",
             "color": "black"
           },
+          "b8": {
+            "type": "knight",
+            "color": "black"
+          },
           "c8": {
             "type": "bishop",
             "color": "black"
@@ -803,12 +476,350 @@
         },
         "quantum_pieces": [
           {
-            "id": 1,
+            "id": 60,
             "piece_type": "knight",
             "color": "white",
             "positions": [
-              "f3",
-              "h3"
+              "a3",
+              "c3"
+            ],
+            "probabilities": [
+              0.5,
+              0.5
+            ],
+            "entangled_with": null
+          }
+        ],
+        "white_king_prob": 1.0,
+        "black_king_prob": 1.0,
+        "quantum_piece_count": 1
+      },
+      "events": [],
+      "validation_issues": []
+    },
+    {
+      "move_number": 4,
+      "player": "black",
+      "move_type": "split",
+      "move": {
+        "type": "split",
+        "from": "g8",
+        "targets": [
+          "f6",
+          "h6"
+        ]
+      },
+      "board_state": {
+        "fen": "rnbqkb1r/1ppppppp/8/p7/P7/8/1PPPPPPP/R1BQKBNR w KQkq - 0 2",
+        "turn": "white",
+        "classical_pieces": {
+          "a1": {
+            "type": "rook",
+            "color": "white"
+          },
+          "c1": {
+            "type": "bishop",
+            "color": "white"
+          },
+          "d1": {
+            "type": "queen",
+            "color": "white"
+          },
+          "e1": {
+            "type": "king",
+            "color": "white"
+          },
+          "f1": {
+            "type": "bishop",
+            "color": "white"
+          },
+          "g1": {
+            "type": "knight",
+            "color": "white"
+          },
+          "h1": {
+            "type": "rook",
+            "color": "white"
+          },
+          "b2": {
+            "type": "pawn",
+            "color": "white"
+          },
+          "c2": {
+            "type": "pawn",
+            "color": "white"
+          },
+          "d2": {
+            "type": "pawn",
+            "color": "white"
+          },
+          "e2": {
+            "type": "pawn",
+            "color": "white"
+          },
+          "f2": {
+            "type": "pawn",
+            "color": "white"
+          },
+          "g2": {
+            "type": "pawn",
+            "color": "white"
+          },
+          "h2": {
+            "type": "pawn",
+            "color": "white"
+          },
+          "a4": {
+            "type": "pawn",
+            "color": "white"
+          },
+          "a5": {
+            "type": "pawn",
+            "color": "black"
+          },
+          "b7": {
+            "type": "pawn",
+            "color": "black"
+          },
+          "c7": {
+            "type": "pawn",
+            "color": "black"
+          },
+          "d7": {
+            "type": "pawn",
+            "color": "black"
+          },
+          "e7": {
+            "type": "pawn",
+            "color": "black"
+          },
+          "f7": {
+            "type": "pawn",
+            "color": "black"
+          },
+          "g7": {
+            "type": "pawn",
+            "color": "black"
+          },
+          "h7": {
+            "type": "pawn",
+            "color": "black"
+          },
+          "a8": {
+            "type": "rook",
+            "color": "black"
+          },
+          "b8": {
+            "type": "knight",
+            "color": "black"
+          },
+          "c8": {
+            "type": "bishop",
+            "color": "black"
+          },
+          "d8": {
+            "type": "queen",
+            "color": "black"
+          },
+          "e8": {
+            "type": "king",
+            "color": "black"
+          },
+          "f8": {
+            "type": "bishop",
+            "color": "black"
+          },
+          "h8": {
+            "type": "rook",
+            "color": "black"
+          }
+        },
+        "quantum_pieces": [
+          {
+            "id": 60,
+            "piece_type": "knight",
+            "color": "white",
+            "positions": [
+              "a3",
+              "c3"
+            ],
+            "probabilities": [
+              0.5,
+              0.5
+            ],
+            "entangled_with": null
+          },
+          {
+            "id": 61,
+            "piece_type": "knight",
+            "color": "black",
+            "positions": [
+              "f6",
+              "h6"
+            ],
+            "probabilities": [
+              0.5,
+              0.5
+            ],
+            "entangled_with": null
+          }
+        ],
+        "white_king_prob": 1.0,
+        "black_king_prob": 1.0,
+        "quantum_piece_count": 2
+      },
+      "events": [],
+      "validation_issues": []
+    },
+    {
+      "move_number": 5,
+      "player": "white",
+      "move_type": "merge",
+      "move": {
+        "type": "merge",
+        "sources": [
+          "a3",
+          "c3"
+        ],
+        "to": "b5"
+      },
+      "board_state": {
+        "fen": "rnbqkb1r/1ppppppp/8/pN6/P7/8/1PPPPPPP/R1BQKBNR b KQkq - 0 2",
+        "turn": "black",
+        "classical_pieces": {
+          "a1": {
+            "type": "rook",
+            "color": "white"
+          },
+          "c1": {
+            "type": "bishop",
+            "color": "white"
+          },
+          "d1": {
+            "type": "queen",
+            "color": "white"
+          },
+          "e1": {
+            "type": "king",
+            "color": "white"
+          },
+          "f1": {
+            "type": "bishop",
+            "color": "white"
+          },
+          "g1": {
+            "type": "knight",
+            "color": "white"
+          },
+          "h1": {
+            "type": "rook",
+            "color": "white"
+          },
+          "b2": {
+            "type": "pawn",
+            "color": "white"
+          },
+          "c2": {
+            "type": "pawn",
+            "color": "white"
+          },
+          "d2": {
+            "type": "pawn",
+            "color": "white"
+          },
+          "e2": {
+            "type": "pawn",
+            "color": "white"
+          },
+          "f2": {
+            "type": "pawn",
+            "color": "white"
+          },
+          "g2": {
+            "type": "pawn",
+            "color": "white"
+          },
+          "h2": {
+            "type": "pawn",
+            "color": "white"
+          },
+          "a4": {
+            "type": "pawn",
+            "color": "white"
+          },
+          "a5": {
+            "type": "pawn",
+            "color": "black"
+          },
+          "b5": {
+            "type": "knight",
+            "color": "white"
+          },
+          "b7": {
+            "type": "pawn",
+            "color": "black"
+          },
+          "c7": {
+            "type": "pawn",
+            "color": "black"
+          },
+          "d7": {
+            "type": "pawn",
+            "color": "black"
+          },
+          "e7": {
+            "type": "pawn",
+            "color": "black"
+          },
+          "f7": {
+            "type": "pawn",
+            "color": "black"
+          },
+          "g7": {
+            "type": "pawn",
+            "color": "black"
+          },
+          "h7": {
+            "type": "pawn",
+            "color": "black"
+          },
+          "a8": {
+            "type": "rook",
+            "color": "black"
+          },
+          "b8": {
+            "type": "knight",
+            "color": "black"
+          },
+          "c8": {
+            "type": "bishop",
+            "color": "black"
+          },
+          "d8": {
+            "type": "queen",
+            "color": "black"
+          },
+          "e8": {
+            "type": "king",
+            "color": "black"
+          },
+          "f8": {
+            "type": "bishop",
+            "color": "black"
+          },
+          "h8": {
+            "type": "rook",
+            "color": "black"
+          }
+        },
+        "quantum_pieces": [
+          {
+            "id": 61,
+            "piece_type": "knight",
+            "color": "black",
+            "positions": [
+              "f6",
+              "h6"
             ],
             "probabilities": [
               0.5,
@@ -830,20 +841,16 @@
       "move_type": "classical",
       "move": {
         "type": "classical",
-        "from": "b4",
-        "to": "c2",
+        "from": "d7",
+        "to": "d5",
         "promotion": null
       },
       "board_state": {
-        "fen": "r1bqkbnr/pppppppp/8/8/5P2/8/PPnPPKPP/RNBQ1B1R w kq - 0 2",
+        "fen": "rnbqkb1r/1pp1pppp/8/pN1p4/P7/8/1PPPPPPP/R1BQKBNR w KQkq - 0 3",
         "turn": "white",
         "classical_pieces": {
           "a1": {
             "type": "rook",
-            "color": "white"
-          },
-          "b1": {
-            "type": "knight",
             "color": "white"
           },
           "c1": {
@@ -854,16 +861,20 @@
             "type": "queen",
             "color": "white"
           },
+          "e1": {
+            "type": "king",
+            "color": "white"
+          },
           "f1": {
             "type": "bishop",
             "color": "white"
           },
-          "h1": {
-            "type": "rook",
+          "g1": {
+            "type": "knight",
             "color": "white"
           },
-          "a2": {
-            "type": "pawn",
+          "h1": {
+            "type": "rook",
             "color": "white"
           },
           "b2": {
@@ -871,8 +882,8 @@
             "color": "white"
           },
           "c2": {
-            "type": "knight",
-            "color": "black"
+            "type": "pawn",
+            "color": "white"
           },
           "d2": {
             "type": "pawn",
@@ -883,7 +894,7 @@
             "color": "white"
           },
           "f2": {
-            "type": "king",
+            "type": "pawn",
             "color": "white"
           },
           "g2": {
@@ -894,11 +905,19 @@
             "type": "pawn",
             "color": "white"
           },
-          "f4": {
+          "a4": {
             "type": "pawn",
             "color": "white"
           },
-          "a7": {
+          "a5": {
+            "type": "pawn",
+            "color": "black"
+          },
+          "b5": {
+            "type": "knight",
+            "color": "white"
+          },
+          "d5": {
             "type": "pawn",
             "color": "black"
           },
@@ -907,10 +926,6 @@
             "color": "black"
           },
           "c7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "d7": {
             "type": "pawn",
             "color": "black"
           },
@@ -934,6 +949,10 @@
             "type": "rook",
             "color": "black"
           },
+          "b8": {
+            "type": "knight",
+            "color": "black"
+          },
           "c8": {
             "type": "bishop",
             "color": "black"
@@ -950,10 +969,6 @@
             "type": "bishop",
             "color": "black"
           },
-          "g8": {
-            "type": "knight",
-            "color": "black"
-          },
           "h8": {
             "type": "rook",
             "color": "black"
@@ -961,12 +976,12 @@
         },
         "quantum_pieces": [
           {
-            "id": 1,
+            "id": 61,
             "piece_type": "knight",
-            "color": "white",
+            "color": "black",
             "positions": [
-              "f3",
-              "h3"
+              "f6",
+              "h6"
             ],
             "probabilities": [
               0.5,
@@ -988,36 +1003,40 @@
       "move_type": "classical",
       "move": {
         "type": "classical",
-        "from": "d1",
-        "to": "c2",
+        "from": "b5",
+        "to": "c7",
         "promotion": null
       },
       "board_state": {
-        "fen": "r1bqkbnr/pppppppp/8/8/5P2/8/PPQPPKPP/RNB2B1R b kq - 0 2",
+        "fen": "rnbqkb1r/1pN1pppp/8/p2p4/P7/8/1PPPPPPP/R1BQKBNR b KQkq - 0 3",
         "turn": "black",
         "classical_pieces": {
           "a1": {
             "type": "rook",
             "color": "white"
           },
-          "b1": {
-            "type": "knight",
-            "color": "white"
-          },
           "c1": {
             "type": "bishop",
+            "color": "white"
+          },
+          "d1": {
+            "type": "queen",
+            "color": "white"
+          },
+          "e1": {
+            "type": "king",
             "color": "white"
           },
           "f1": {
             "type": "bishop",
             "color": "white"
           },
-          "h1": {
-            "type": "rook",
+          "g1": {
+            "type": "knight",
             "color": "white"
           },
-          "a2": {
-            "type": "pawn",
+          "h1": {
+            "type": "rook",
             "color": "white"
           },
           "b2": {
@@ -1025,7 +1044,7 @@
             "color": "white"
           },
           "c2": {
-            "type": "queen",
+            "type": "pawn",
             "color": "white"
           },
           "d2": {
@@ -1037,7 +1056,7 @@
             "color": "white"
           },
           "f2": {
-            "type": "king",
+            "type": "pawn",
             "color": "white"
           },
           "g2": {
@@ -1048,11 +1067,15 @@
             "type": "pawn",
             "color": "white"
           },
-          "f4": {
+          "a4": {
             "type": "pawn",
             "color": "white"
           },
-          "a7": {
+          "a5": {
+            "type": "pawn",
+            "color": "black"
+          },
+          "d5": {
             "type": "pawn",
             "color": "black"
           },
@@ -1061,12 +1084,8 @@
             "color": "black"
           },
           "c7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "d7": {
-            "type": "pawn",
-            "color": "black"
+            "type": "knight",
+            "color": "white"
           },
           "e7": {
             "type": "pawn",
@@ -1088,6 +1107,10 @@
             "type": "rook",
             "color": "black"
           },
+          "b8": {
+            "type": "knight",
+            "color": "black"
+          },
           "c8": {
             "type": "bishop",
             "color": "black"
@@ -1104,10 +1127,6 @@
             "type": "bishop",
             "color": "black"
           },
-          "g8": {
-            "type": "knight",
-            "color": "black"
-          },
           "h8": {
             "type": "rook",
             "color": "black"
@@ -1115,12 +1134,12 @@
         },
         "quantum_pieces": [
           {
-            "id": 1,
+            "id": 61,
             "piece_type": "knight",
-            "color": "white",
+            "color": "black",
             "positions": [
-              "f3",
-              "h3"
+              "f6",
+              "h6"
             ],
             "probabilities": [
               0.5,
@@ -1142,36 +1161,40 @@
       "move_type": "classical",
       "move": {
         "type": "classical",
-        "from": "g8",
-        "to": "f6",
+        "from": "d8",
+        "to": "c7",
         "promotion": null
       },
       "board_state": {
-        "fen": "r1bqkb1r/pppppppp/5n2/8/5P2/8/PPQPPKPP/RNB2B1R w kq - 1 3",
+        "fen": "rnb1kb1r/1pq1pppp/8/p2p4/P7/8/1PPPPPPP/R1BQKBNR w KQkq - 0 4",
         "turn": "white",
         "classical_pieces": {
           "a1": {
             "type": "rook",
             "color": "white"
           },
-          "b1": {
-            "type": "knight",
-            "color": "white"
-          },
           "c1": {
             "type": "bishop",
+            "color": "white"
+          },
+          "d1": {
+            "type": "queen",
+            "color": "white"
+          },
+          "e1": {
+            "type": "king",
             "color": "white"
           },
           "f1": {
             "type": "bishop",
             "color": "white"
           },
-          "h1": {
-            "type": "rook",
+          "g1": {
+            "type": "knight",
             "color": "white"
           },
-          "a2": {
-            "type": "pawn",
+          "h1": {
+            "type": "rook",
             "color": "white"
           },
           "b2": {
@@ -1179,7 +1202,7 @@
             "color": "white"
           },
           "c2": {
-            "type": "queen",
+            "type": "pawn",
             "color": "white"
           },
           "d2": {
@@ -1191,7 +1214,7 @@
             "color": "white"
           },
           "f2": {
-            "type": "king",
+            "type": "pawn",
             "color": "white"
           },
           "g2": {
@@ -1202,15 +1225,15 @@
             "type": "pawn",
             "color": "white"
           },
-          "f4": {
+          "a4": {
             "type": "pawn",
             "color": "white"
           },
-          "f6": {
-            "type": "knight",
+          "a5": {
+            "type": "pawn",
             "color": "black"
           },
-          "a7": {
+          "d5": {
             "type": "pawn",
             "color": "black"
           },
@@ -1219,11 +1242,7 @@
             "color": "black"
           },
           "c7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "d7": {
-            "type": "pawn",
+            "type": "queen",
             "color": "black"
           },
           "e7": {
@@ -1246,12 +1265,12 @@
             "type": "rook",
             "color": "black"
           },
-          "c8": {
-            "type": "bishop",
+          "b8": {
+            "type": "knight",
             "color": "black"
           },
-          "d8": {
-            "type": "queen",
+          "c8": {
+            "type": "bishop",
             "color": "black"
           },
           "e8": {
@@ -1269,12 +1288,12 @@
         },
         "quantum_pieces": [
           {
-            "id": 1,
+            "id": 61,
             "piece_type": "knight",
-            "color": "white",
+            "color": "black",
             "positions": [
-              "f3",
-              "h3"
+              "f6",
+              "h6"
             ],
             "probabilities": [
               0.5,
@@ -1293,42 +1312,48 @@
     {
       "move_number": 9,
       "player": "white",
-      "move_type": "classical",
+      "move_type": "split",
       "move": {
-        "type": "classical",
-        "from": "c2",
-        "to": "c7",
-        "promotion": null
+        "type": "split",
+        "from": "a1",
+        "targets": [
+          "a3",
+          "a2"
+        ]
       },
       "board_state": {
-        "fen": "r1bqkb1r/ppQppppp/5n2/8/5P2/8/PP1PPKPP/RNB2B1R b kq - 0 3",
+        "fen": "rnb1kb1r/1pq1pppp/8/p2p4/P7/8/1PPPPPPP/2BQKBNR b Kkq - 0 4",
         "turn": "black",
         "classical_pieces": {
-          "a1": {
-            "type": "rook",
-            "color": "white"
-          },
-          "b1": {
-            "type": "knight",
-            "color": "white"
-          },
           "c1": {
             "type": "bishop",
+            "color": "white"
+          },
+          "d1": {
+            "type": "queen",
+            "color": "white"
+          },
+          "e1": {
+            "type": "king",
             "color": "white"
           },
           "f1": {
             "type": "bishop",
             "color": "white"
           },
+          "g1": {
+            "type": "knight",
+            "color": "white"
+          },
           "h1": {
             "type": "rook",
             "color": "white"
           },
-          "a2": {
+          "b2": {
             "type": "pawn",
             "color": "white"
           },
-          "b2": {
+          "c2": {
             "type": "pawn",
             "color": "white"
           },
@@ -1341,7 +1366,7 @@
             "color": "white"
           },
           "f2": {
-            "type": "king",
+            "type": "pawn",
             "color": "white"
           },
           "g2": {
@@ -1352,15 +1377,15 @@
             "type": "pawn",
             "color": "white"
           },
-          "f4": {
+          "a4": {
             "type": "pawn",
             "color": "white"
           },
-          "f6": {
-            "type": "knight",
+          "a5": {
+            "type": "pawn",
             "color": "black"
           },
-          "a7": {
+          "d5": {
             "type": "pawn",
             "color": "black"
           },
@@ -1370,10 +1395,6 @@
           },
           "c7": {
             "type": "queen",
-            "color": "white"
-          },
-          "d7": {
-            "type": "pawn",
             "color": "black"
           },
           "e7": {
@@ -1396,12 +1417,12 @@
             "type": "rook",
             "color": "black"
           },
-          "c8": {
-            "type": "bishop",
+          "b8": {
+            "type": "knight",
             "color": "black"
           },
-          "d8": {
-            "type": "queen",
+          "c8": {
+            "type": "bishop",
             "color": "black"
           },
           "e8": {
@@ -1419,12 +1440,26 @@
         },
         "quantum_pieces": [
           {
-            "id": 1,
+            "id": 61,
             "piece_type": "knight",
+            "color": "black",
+            "positions": [
+              "f6",
+              "h6"
+            ],
+            "probabilities": [
+              0.5,
+              0.5
+            ],
+            "entangled_with": null
+          },
+          {
+            "id": 62,
+            "piece_type": "rook",
             "color": "white",
             "positions": [
-              "f3",
-              "h3"
+              "a3",
+              "a2"
             ],
             "probabilities": [
               0.5,
@@ -1435,7 +1470,7 @@
         ],
         "white_king_prob": 1.0,
         "black_king_prob": 1.0,
-        "quantum_piece_count": 1
+        "quantum_piece_count": 2
       },
       "events": [],
       "validation_issues": []
@@ -1446,39 +1481,43 @@
       "move_type": "classical",
       "move": {
         "type": "classical",
-        "from": "d8",
-        "to": "c7",
+        "from": "c7",
+        "to": "h2",
         "promotion": null
       },
       "board_state": {
-        "fen": "r1b1kb1r/ppqppppp/5n2/8/5P2/8/PP1PPKPP/RNB2B1R w kq - 0 4",
+        "fen": "rnb1kb1r/1p2pppp/8/p2p4/P7/8/1PPPPPPq/2BQKBNR w Kkq - 0 5",
         "turn": "white",
         "classical_pieces": {
-          "a1": {
-            "type": "rook",
-            "color": "white"
-          },
-          "b1": {
-            "type": "knight",
-            "color": "white"
-          },
           "c1": {
             "type": "bishop",
+            "color": "white"
+          },
+          "d1": {
+            "type": "queen",
+            "color": "white"
+          },
+          "e1": {
+            "type": "king",
             "color": "white"
           },
           "f1": {
             "type": "bishop",
             "color": "white"
           },
+          "g1": {
+            "type": "knight",
+            "color": "white"
+          },
           "h1": {
             "type": "rook",
             "color": "white"
           },
-          "a2": {
+          "b2": {
             "type": "pawn",
             "color": "white"
           },
-          "b2": {
+          "c2": {
             "type": "pawn",
             "color": "white"
           },
@@ -1491,7 +1530,7 @@
             "color": "white"
           },
           "f2": {
-            "type": "king",
+            "type": "pawn",
             "color": "white"
           },
           "g2": {
@@ -1499,30 +1538,22 @@
             "color": "white"
           },
           "h2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "f4": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "f6": {
-            "type": "knight",
+            "type": "queen",
             "color": "black"
           },
-          "a7": {
+          "a4": {
+            "type": "pawn",
+            "color": "white"
+          },
+          "a5": {
+            "type": "pawn",
+            "color": "black"
+          },
+          "d5": {
             "type": "pawn",
             "color": "black"
           },
           "b7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "c7": {
-            "type": "queen",
-            "color": "black"
-          },
-          "d7": {
             "type": "pawn",
             "color": "black"
           },
@@ -1546,6 +1577,10 @@
             "type": "rook",
             "color": "black"
           },
+          "b8": {
+            "type": "knight",
+            "color": "black"
+          },
           "c8": {
             "type": "bishop",
             "color": "black"
@@ -1565,12 +1600,26 @@
         },
         "quantum_pieces": [
           {
-            "id": 1,
+            "id": 61,
             "piece_type": "knight",
+            "color": "black",
+            "positions": [
+              "f6",
+              "h6"
+            ],
+            "probabilities": [
+              0.5,
+              0.5
+            ],
+            "entangled_with": null
+          },
+          {
+            "id": 62,
+            "piece_type": "rook",
             "color": "white",
             "positions": [
-              "f3",
-              "h3"
+              "a3",
+              "a2"
             ],
             "probabilities": [
               0.5,
@@ -1581,7 +1630,7 @@
         ],
         "white_king_prob": 1.0,
         "black_king_prob": 1.0,
-        "quantum_piece_count": 1
+        "quantum_piece_count": 2
       },
       "events": [],
       "validation_issues": []
@@ -1592,39 +1641,39 @@
       "move_type": "classical",
       "move": {
         "type": "classical",
-        "from": "f4",
-        "to": "f5",
+        "from": "h1",
+        "to": "h2",
         "promotion": null
       },
       "board_state": {
-        "fen": "r1b1kb1r/ppqppppp/5n2/5P2/8/8/PP1PPKPP/RNB2B1R b kq - 0 4",
+        "fen": "rnb1kb1r/1p2pppp/8/p2p4/P7/8/1PPPPPPR/2BQKBN1 b kq - 0 5",
         "turn": "black",
         "classical_pieces": {
-          "a1": {
-            "type": "rook",
-            "color": "white"
-          },
-          "b1": {
-            "type": "knight",
-            "color": "white"
-          },
           "c1": {
             "type": "bishop",
+            "color": "white"
+          },
+          "d1": {
+            "type": "queen",
+            "color": "white"
+          },
+          "e1": {
+            "type": "king",
             "color": "white"
           },
           "f1": {
             "type": "bishop",
             "color": "white"
           },
-          "h1": {
-            "type": "rook",
-            "color": "white"
-          },
-          "a2": {
-            "type": "pawn",
+          "g1": {
+            "type": "knight",
             "color": "white"
           },
           "b2": {
+            "type": "pawn",
+            "color": "white"
+          },
+          "c2": {
             "type": "pawn",
             "color": "white"
           },
@@ -1637,7 +1686,7 @@
             "color": "white"
           },
           "f2": {
-            "type": "king",
+            "type": "pawn",
             "color": "white"
           },
           "g2": {
@@ -1645,30 +1694,22 @@
             "color": "white"
           },
           "h2": {
+            "type": "rook",
+            "color": "white"
+          },
+          "a4": {
             "type": "pawn",
             "color": "white"
           },
-          "f5": {
+          "a5": {
             "type": "pawn",
-            "color": "white"
-          },
-          "f6": {
-            "type": "knight",
             "color": "black"
           },
-          "a7": {
+          "d5": {
             "type": "pawn",
             "color": "black"
           },
           "b7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "c7": {
-            "type": "queen",
-            "color": "black"
-          },
-          "d7": {
             "type": "pawn",
             "color": "black"
           },
@@ -1692,6 +1733,10 @@
             "type": "rook",
             "color": "black"
           },
+          "b8": {
+            "type": "knight",
+            "color": "black"
+          },
           "c8": {
             "type": "bishop",
             "color": "black"
@@ -1711,12 +1756,26 @@
         },
         "quantum_pieces": [
           {
-            "id": 1,
+            "id": 61,
             "piece_type": "knight",
+            "color": "black",
+            "positions": [
+              "f6",
+              "h6"
+            ],
+            "probabilities": [
+              0.5,
+              0.5
+            ],
+            "entangled_with": null
+          },
+          {
+            "id": 62,
+            "piece_type": "rook",
             "color": "white",
             "positions": [
-              "f3",
-              "h3"
+              "a3",
+              "a2"
             ],
             "probabilities": [
               0.5,
@@ -1727,7 +1786,7 @@
         ],
         "white_king_prob": 1.0,
         "black_king_prob": 1.0,
-        "quantum_piece_count": 1
+        "quantum_piece_count": 2
       },
       "events": [],
       "validation_issues": []
@@ -1738,39 +1797,39 @@
       "move_type": "classical",
       "move": {
         "type": "classical",
-        "from": "c7",
-        "to": "c1",
+        "from": "c8",
+        "to": "d7",
         "promotion": null
       },
       "board_state": {
-        "fen": "r1b1kb1r/pp1ppppp/5n2/5P2/8/8/PP1PPKPP/RNq2B1R w kq - 0 5",
+        "fen": "rn2kb1r/1p1bpppp/8/p2p4/P7/8/1PPPPPPR/2BQKBN1 w kq - 1 6",
         "turn": "white",
         "classical_pieces": {
-          "a1": {
-            "type": "rook",
-            "color": "white"
-          },
-          "b1": {
-            "type": "knight",
-            "color": "white"
-          },
           "c1": {
+            "type": "bishop",
+            "color": "white"
+          },
+          "d1": {
             "type": "queen",
-            "color": "black"
+            "color": "white"
+          },
+          "e1": {
+            "type": "king",
+            "color": "white"
           },
           "f1": {
             "type": "bishop",
             "color": "white"
           },
-          "h1": {
-            "type": "rook",
-            "color": "white"
-          },
-          "a2": {
-            "type": "pawn",
+          "g1": {
+            "type": "knight",
             "color": "white"
           },
           "b2": {
+            "type": "pawn",
+            "color": "white"
+          },
+          "c2": {
             "type": "pawn",
             "color": "white"
           },
@@ -1783,7 +1842,7 @@
             "color": "white"
           },
           "f2": {
-            "type": "king",
+            "type": "pawn",
             "color": "white"
           },
           "g2": {
@@ -1791,18 +1850,18 @@
             "color": "white"
           },
           "h2": {
+            "type": "rook",
+            "color": "white"
+          },
+          "a4": {
             "type": "pawn",
             "color": "white"
           },
-          "f5": {
+          "a5": {
             "type": "pawn",
-            "color": "white"
-          },
-          "f6": {
-            "type": "knight",
             "color": "black"
           },
-          "a7": {
+          "d5": {
             "type": "pawn",
             "color": "black"
           },
@@ -1811,7 +1870,7 @@
             "color": "black"
           },
           "d7": {
-            "type": "pawn",
+            "type": "bishop",
             "color": "black"
           },
           "e7": {
@@ -1834,8 +1893,8 @@
             "type": "rook",
             "color": "black"
           },
-          "c8": {
-            "type": "bishop",
+          "b8": {
+            "type": "knight",
             "color": "black"
           },
           "e8": {
@@ -1853,12 +1912,168 @@
         },
         "quantum_pieces": [
           {
-            "id": 1,
+            "id": 61,
             "piece_type": "knight",
+            "color": "black",
+            "positions": [
+              "f6",
+              "h6"
+            ],
+            "probabilities": [
+              0.5,
+              0.5
+            ],
+            "entangled_with": null
+          },
+          {
+            "id": 62,
+            "piece_type": "rook",
             "color": "white",
             "positions": [
-              "f3",
-              "h3"
+              "a3",
+              "a2"
+            ],
+            "probabilities": [
+              0.5,
+              0.5
+            ],
+            "entangled_with": null
+          }
+        ],
+        "white_king_prob": 1.0,
+        "black_king_prob": 1.0,
+        "quantum_piece_count": 2
+      },
+      "events": [],
+      "validation_issues": []
+    },
+    {
+      "move_number": 13,
+      "player": "white",
+      "move_type": "classical",
+      "move": {
+        "type": "classical",
+        "from": "h2",
+        "to": "h7",
+        "promotion": null
+      },
+      "board_state": {
+        "fen": "rn2kb1r/1p1bpppR/5n2/p2p4/P7/8/1PPPPPP1/2BQKBN1 b kq - 0 6",
+        "turn": "black",
+        "classical_pieces": {
+          "c1": {
+            "type": "bishop",
+            "color": "white"
+          },
+          "d1": {
+            "type": "queen",
+            "color": "white"
+          },
+          "e1": {
+            "type": "king",
+            "color": "white"
+          },
+          "f1": {
+            "type": "bishop",
+            "color": "white"
+          },
+          "g1": {
+            "type": "knight",
+            "color": "white"
+          },
+          "b2": {
+            "type": "pawn",
+            "color": "white"
+          },
+          "c2": {
+            "type": "pawn",
+            "color": "white"
+          },
+          "d2": {
+            "type": "pawn",
+            "color": "white"
+          },
+          "e2": {
+            "type": "pawn",
+            "color": "white"
+          },
+          "f2": {
+            "type": "pawn",
+            "color": "white"
+          },
+          "g2": {
+            "type": "pawn",
+            "color": "white"
+          },
+          "a4": {
+            "type": "pawn",
+            "color": "white"
+          },
+          "a5": {
+            "type": "pawn",
+            "color": "black"
+          },
+          "d5": {
+            "type": "pawn",
+            "color": "black"
+          },
+          "f6": {
+            "type": "knight",
+            "color": "black"
+          },
+          "b7": {
+            "type": "pawn",
+            "color": "black"
+          },
+          "d7": {
+            "type": "bishop",
+            "color": "black"
+          },
+          "e7": {
+            "type": "pawn",
+            "color": "black"
+          },
+          "f7": {
+            "type": "pawn",
+            "color": "black"
+          },
+          "g7": {
+            "type": "pawn",
+            "color": "black"
+          },
+          "h7": {
+            "type": "rook",
+            "color": "white"
+          },
+          "a8": {
+            "type": "rook",
+            "color": "black"
+          },
+          "b8": {
+            "type": "knight",
+            "color": "black"
+          },
+          "e8": {
+            "type": "king",
+            "color": "black"
+          },
+          "f8": {
+            "type": "bishop",
+            "color": "black"
+          },
+          "h8": {
+            "type": "rook",
+            "color": "black"
+          }
+        },
+        "quantum_pieces": [
+          {
+            "id": 62,
+            "piece_type": "rook",
+            "color": "white",
+            "positions": [
+              "a3",
+              "a2"
             ],
             "probabilities": [
               0.5,
@@ -1871,636 +2086,13 @@
         "black_king_prob": 1.0,
         "quantum_piece_count": 1
       },
-      "events": [],
-      "validation_issues": []
-    },
-    {
-      "move_number": 13,
-      "player": "white",
-      "move_type": "merge",
-      "move": {
-        "type": "merge",
-        "sources": [
-          "f3",
-          "h3"
-        ],
-        "to": "g5"
-      },
-      "board_state": {
-        "fen": "r1b1kb1r/pp1ppppp/5n2/5PN1/8/8/PP1PPKPP/RNq2B1R b kq - 0 5",
-        "turn": "black",
-        "classical_pieces": {
-          "a1": {
-            "type": "rook",
-            "color": "white"
-          },
-          "b1": {
-            "type": "knight",
-            "color": "white"
-          },
-          "c1": {
-            "type": "queen",
-            "color": "black"
-          },
-          "f1": {
-            "type": "bishop",
-            "color": "white"
-          },
-          "h1": {
-            "type": "rook",
-            "color": "white"
-          },
-          "a2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "b2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "d2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "e2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "f2": {
-            "type": "king",
-            "color": "white"
-          },
-          "g2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "h2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "f5": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "g5": {
-            "type": "knight",
-            "color": "white"
-          },
-          "f6": {
-            "type": "knight",
-            "color": "black"
-          },
-          "a7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "b7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "d7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "e7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "f7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "g7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "h7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "a8": {
-            "type": "rook",
-            "color": "black"
-          },
-          "c8": {
-            "type": "bishop",
-            "color": "black"
-          },
-          "e8": {
-            "type": "king",
-            "color": "black"
-          },
-          "f8": {
-            "type": "bishop",
-            "color": "black"
-          },
-          "h8": {
-            "type": "rook",
-            "color": "black"
-          }
-        },
-        "quantum_pieces": [],
-        "white_king_prob": 1.0,
-        "black_king_prob": 1.0,
-        "quantum_piece_count": 0
-      },
-      "events": [],
+      "events": [
+        "COLLAPSED:n\u2192f6 (discarded: ['h6'])"
+      ],
       "validation_issues": []
     },
     {
       "move_number": 14,
-      "player": "black",
-      "move_type": "classical",
-      "move": {
-        "type": "classical",
-        "from": "c1",
-        "to": "f1",
-        "promotion": null
-      },
-      "board_state": {
-        "fen": "r1b1kb1r/pp1ppppp/5n2/5PN1/8/8/PP1PPKPP/RN3q1R w kq - 0 6",
-        "turn": "white",
-        "classical_pieces": {
-          "a1": {
-            "type": "rook",
-            "color": "white"
-          },
-          "b1": {
-            "type": "knight",
-            "color": "white"
-          },
-          "f1": {
-            "type": "queen",
-            "color": "black"
-          },
-          "h1": {
-            "type": "rook",
-            "color": "white"
-          },
-          "a2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "b2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "d2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "e2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "f2": {
-            "type": "king",
-            "color": "white"
-          },
-          "g2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "h2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "f5": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "g5": {
-            "type": "knight",
-            "color": "white"
-          },
-          "f6": {
-            "type": "knight",
-            "color": "black"
-          },
-          "a7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "b7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "d7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "e7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "f7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "g7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "h7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "a8": {
-            "type": "rook",
-            "color": "black"
-          },
-          "c8": {
-            "type": "bishop",
-            "color": "black"
-          },
-          "e8": {
-            "type": "king",
-            "color": "black"
-          },
-          "f8": {
-            "type": "bishop",
-            "color": "black"
-          },
-          "h8": {
-            "type": "rook",
-            "color": "black"
-          }
-        },
-        "quantum_pieces": [],
-        "white_king_prob": 1.0,
-        "black_king_prob": 1.0,
-        "quantum_piece_count": 0
-      },
-      "events": [],
-      "validation_issues": []
-    },
-    {
-      "move_number": 15,
-      "player": "white",
-      "move_type": "classical",
-      "move": {
-        "type": "classical",
-        "from": "h1",
-        "to": "f1",
-        "promotion": null
-      },
-      "board_state": {
-        "fen": "r1b1kb1r/pp1ppppp/5n2/5PN1/8/8/PP1PPKPP/RN3R2 b kq - 0 6",
-        "turn": "black",
-        "classical_pieces": {
-          "a1": {
-            "type": "rook",
-            "color": "white"
-          },
-          "b1": {
-            "type": "knight",
-            "color": "white"
-          },
-          "f1": {
-            "type": "rook",
-            "color": "white"
-          },
-          "a2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "b2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "d2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "e2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "f2": {
-            "type": "king",
-            "color": "white"
-          },
-          "g2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "h2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "f5": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "g5": {
-            "type": "knight",
-            "color": "white"
-          },
-          "f6": {
-            "type": "knight",
-            "color": "black"
-          },
-          "a7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "b7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "d7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "e7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "f7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "g7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "h7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "a8": {
-            "type": "rook",
-            "color": "black"
-          },
-          "c8": {
-            "type": "bishop",
-            "color": "black"
-          },
-          "e8": {
-            "type": "king",
-            "color": "black"
-          },
-          "f8": {
-            "type": "bishop",
-            "color": "black"
-          },
-          "h8": {
-            "type": "rook",
-            "color": "black"
-          }
-        },
-        "quantum_pieces": [],
-        "white_king_prob": 1.0,
-        "black_king_prob": 1.0,
-        "quantum_piece_count": 0
-      },
-      "events": [],
-      "validation_issues": []
-    },
-    {
-      "move_number": 16,
-      "player": "black",
-      "move_type": "classical",
-      "move": {
-        "type": "classical",
-        "from": "d7",
-        "to": "d6",
-        "promotion": null
-      },
-      "board_state": {
-        "fen": "r1b1kb1r/pp2pppp/3p1n2/5PN1/8/8/PP1PPKPP/RN3R2 w kq - 0 7",
-        "turn": "white",
-        "classical_pieces": {
-          "a1": {
-            "type": "rook",
-            "color": "white"
-          },
-          "b1": {
-            "type": "knight",
-            "color": "white"
-          },
-          "f1": {
-            "type": "rook",
-            "color": "white"
-          },
-          "a2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "b2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "d2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "e2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "f2": {
-            "type": "king",
-            "color": "white"
-          },
-          "g2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "h2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "f5": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "g5": {
-            "type": "knight",
-            "color": "white"
-          },
-          "d6": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "f6": {
-            "type": "knight",
-            "color": "black"
-          },
-          "a7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "b7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "e7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "f7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "g7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "h7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "a8": {
-            "type": "rook",
-            "color": "black"
-          },
-          "c8": {
-            "type": "bishop",
-            "color": "black"
-          },
-          "e8": {
-            "type": "king",
-            "color": "black"
-          },
-          "f8": {
-            "type": "bishop",
-            "color": "black"
-          },
-          "h8": {
-            "type": "rook",
-            "color": "black"
-          }
-        },
-        "quantum_pieces": [],
-        "white_king_prob": 1.0,
-        "black_king_prob": 1.0,
-        "quantum_piece_count": 0
-      },
-      "events": [],
-      "validation_issues": []
-    },
-    {
-      "move_number": 17,
-      "player": "white",
-      "move_type": "classical",
-      "move": {
-        "type": "classical",
-        "from": "g5",
-        "to": "h7",
-        "promotion": null
-      },
-      "board_state": {
-        "fen": "r1b1kb1r/pp2pppN/3p1n2/5P2/8/8/PP1PPKPP/RN3R2 b kq - 0 7",
-        "turn": "black",
-        "classical_pieces": {
-          "a1": {
-            "type": "rook",
-            "color": "white"
-          },
-          "b1": {
-            "type": "knight",
-            "color": "white"
-          },
-          "f1": {
-            "type": "rook",
-            "color": "white"
-          },
-          "a2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "b2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "d2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "e2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "f2": {
-            "type": "king",
-            "color": "white"
-          },
-          "g2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "h2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "f5": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "d6": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "f6": {
-            "type": "knight",
-            "color": "black"
-          },
-          "a7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "b7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "e7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "f7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "g7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "h7": {
-            "type": "knight",
-            "color": "white"
-          },
-          "a8": {
-            "type": "rook",
-            "color": "black"
-          },
-          "c8": {
-            "type": "bishop",
-            "color": "black"
-          },
-          "e8": {
-            "type": "king",
-            "color": "black"
-          },
-          "f8": {
-            "type": "bishop",
-            "color": "black"
-          },
-          "h8": {
-            "type": "rook",
-            "color": "black"
-          }
-        },
-        "quantum_pieces": [],
-        "white_king_prob": 1.0,
-        "black_king_prob": 1.0,
-        "quantum_piece_count": 0
-      },
-      "events": [],
-      "validation_issues": []
-    },
-    {
-      "move_number": 18,
       "player": "black",
       "move_type": "classical",
       "move": {
@@ -2510,23 +2102,167 @@
         "promotion": null
       },
       "board_state": {
-        "fen": "r1b1kb2/pp2pppr/3p1n2/5P2/8/8/PP1PPKPP/RN3R2 w q - 0 8",
+        "fen": "rn2kb2/1p1bpppr/5n2/p2p4/P7/8/1PPPPPP1/2BQKBN1 w q - 0 7",
         "turn": "white",
         "classical_pieces": {
-          "a1": {
-            "type": "rook",
+          "c1": {
+            "type": "bishop",
             "color": "white"
           },
-          "b1": {
-            "type": "knight",
+          "d1": {
+            "type": "queen",
+            "color": "white"
+          },
+          "e1": {
+            "type": "king",
             "color": "white"
           },
           "f1": {
-            "type": "rook",
+            "type": "bishop",
             "color": "white"
           },
-          "a2": {
+          "g1": {
+            "type": "knight",
+            "color": "white"
+          },
+          "b2": {
             "type": "pawn",
+            "color": "white"
+          },
+          "c2": {
+            "type": "pawn",
+            "color": "white"
+          },
+          "d2": {
+            "type": "pawn",
+            "color": "white"
+          },
+          "e2": {
+            "type": "pawn",
+            "color": "white"
+          },
+          "f2": {
+            "type": "pawn",
+            "color": "white"
+          },
+          "g2": {
+            "type": "pawn",
+            "color": "white"
+          },
+          "a4": {
+            "type": "pawn",
+            "color": "white"
+          },
+          "a5": {
+            "type": "pawn",
+            "color": "black"
+          },
+          "d5": {
+            "type": "pawn",
+            "color": "black"
+          },
+          "f6": {
+            "type": "knight",
+            "color": "black"
+          },
+          "b7": {
+            "type": "pawn",
+            "color": "black"
+          },
+          "d7": {
+            "type": "bishop",
+            "color": "black"
+          },
+          "e7": {
+            "type": "pawn",
+            "color": "black"
+          },
+          "f7": {
+            "type": "pawn",
+            "color": "black"
+          },
+          "g7": {
+            "type": "pawn",
+            "color": "black"
+          },
+          "h7": {
+            "type": "rook",
+            "color": "black"
+          },
+          "a8": {
+            "type": "rook",
+            "color": "black"
+          },
+          "b8": {
+            "type": "knight",
+            "color": "black"
+          },
+          "e8": {
+            "type": "king",
+            "color": "black"
+          },
+          "f8": {
+            "type": "bishop",
+            "color": "black"
+          }
+        },
+        "quantum_pieces": [
+          {
+            "id": 62,
+            "piece_type": "rook",
+            "color": "white",
+            "positions": [
+              "a3",
+              "a2"
+            ],
+            "probabilities": [
+              0.5,
+              0.5
+            ],
+            "entangled_with": null
+          }
+        ],
+        "white_king_prob": 1.0,
+        "black_king_prob": 1.0,
+        "quantum_piece_count": 1
+      },
+      "events": [
+        "COLLAPSED:n\u2192f6 (discarded: ['h6'])"
+      ],
+      "validation_issues": []
+    },
+    {
+      "move_number": 15,
+      "player": "white",
+      "move_type": "classical",
+      "move": {
+        "type": "classical",
+        "from": "c2",
+        "to": "c3",
+        "promotion": null
+      },
+      "board_state": {
+        "fen": "rn2kb2/1p1bpppr/5n2/p2p4/P7/2P5/1P1PPPP1/2BQKBN1 b q - 0 7",
+        "turn": "black",
+        "classical_pieces": {
+          "c1": {
+            "type": "bishop",
+            "color": "white"
+          },
+          "d1": {
+            "type": "queen",
+            "color": "white"
+          },
+          "e1": {
+            "type": "king",
+            "color": "white"
+          },
+          "f1": {
+            "type": "bishop",
+            "color": "white"
+          },
+          "g1": {
+            "type": "knight",
             "color": "white"
           },
           "b2": {
@@ -2542,22 +2278,26 @@
             "color": "white"
           },
           "f2": {
-            "type": "king",
+            "type": "pawn",
             "color": "white"
           },
           "g2": {
             "type": "pawn",
             "color": "white"
           },
-          "h2": {
+          "c3": {
             "type": "pawn",
             "color": "white"
           },
-          "f5": {
+          "a4": {
             "type": "pawn",
             "color": "white"
           },
-          "d6": {
+          "a5": {
+            "type": "pawn",
+            "color": "black"
+          },
+          "d5": {
             "type": "pawn",
             "color": "black"
           },
@@ -2565,8 +2305,144 @@
             "type": "knight",
             "color": "black"
           },
-          "a7": {
+          "b7": {
             "type": "pawn",
+            "color": "black"
+          },
+          "d7": {
+            "type": "bishop",
+            "color": "black"
+          },
+          "e7": {
+            "type": "pawn",
+            "color": "black"
+          },
+          "f7": {
+            "type": "pawn",
+            "color": "black"
+          },
+          "g7": {
+            "type": "pawn",
+            "color": "black"
+          },
+          "h7": {
+            "type": "rook",
+            "color": "black"
+          },
+          "a8": {
+            "type": "rook",
+            "color": "black"
+          },
+          "b8": {
+            "type": "knight",
+            "color": "black"
+          },
+          "e8": {
+            "type": "king",
+            "color": "black"
+          },
+          "f8": {
+            "type": "bishop",
+            "color": "black"
+          }
+        },
+        "quantum_pieces": [
+          {
+            "id": 62,
+            "piece_type": "rook",
+            "color": "white",
+            "positions": [
+              "a3",
+              "a2"
+            ],
+            "probabilities": [
+              0.5,
+              0.5
+            ],
+            "entangled_with": null
+          }
+        ],
+        "white_king_prob": 1.0,
+        "black_king_prob": 1.0,
+        "quantum_piece_count": 1
+      },
+      "events": [
+        "COLLAPSED:n\u2192f6 (discarded: ['h6'])"
+      ],
+      "validation_issues": []
+    },
+    {
+      "move_number": 16,
+      "player": "black",
+      "move_type": "classical",
+      "move": {
+        "type": "classical",
+        "from": "d7",
+        "to": "a4",
+        "promotion": null
+      },
+      "board_state": {
+        "fen": "rn2kb2/1p2pppr/5n2/p2p4/b7/2P5/1P1PPPP1/2BQKBN1 w q - 0 8",
+        "turn": "white",
+        "classical_pieces": {
+          "c1": {
+            "type": "bishop",
+            "color": "white"
+          },
+          "d1": {
+            "type": "queen",
+            "color": "white"
+          },
+          "e1": {
+            "type": "king",
+            "color": "white"
+          },
+          "f1": {
+            "type": "bishop",
+            "color": "white"
+          },
+          "g1": {
+            "type": "knight",
+            "color": "white"
+          },
+          "b2": {
+            "type": "pawn",
+            "color": "white"
+          },
+          "d2": {
+            "type": "pawn",
+            "color": "white"
+          },
+          "e2": {
+            "type": "pawn",
+            "color": "white"
+          },
+          "f2": {
+            "type": "pawn",
+            "color": "white"
+          },
+          "g2": {
+            "type": "pawn",
+            "color": "white"
+          },
+          "c3": {
+            "type": "pawn",
+            "color": "white"
+          },
+          "a4": {
+            "type": "bishop",
+            "color": "black"
+          },
+          "a5": {
+            "type": "pawn",
+            "color": "black"
+          },
+          "d5": {
+            "type": "pawn",
+            "color": "black"
+          },
+          "f6": {
+            "type": "knight",
             "color": "black"
           },
           "b7": {
@@ -2593,8 +2469,8 @@
             "type": "rook",
             "color": "black"
           },
-          "c8": {
-            "type": "bishop",
+          "b8": {
+            "type": "knight",
             "color": "black"
           },
           "e8": {
@@ -2606,12 +2482,293 @@
             "color": "black"
           }
         },
-        "quantum_pieces": [],
+        "quantum_pieces": [
+          {
+            "id": 62,
+            "piece_type": "rook",
+            "color": "white",
+            "positions": [
+              "a3",
+              "a2"
+            ],
+            "probabilities": [
+              0.5,
+              0.5
+            ],
+            "entangled_with": null
+          }
+        ],
         "white_king_prob": 1.0,
         "black_king_prob": 1.0,
-        "quantum_piece_count": 0
+        "quantum_piece_count": 1
       },
-      "events": [],
+      "events": [
+        "COLLAPSED:n\u2192f6 (discarded: ['h6'])"
+      ],
+      "validation_issues": []
+    },
+    {
+      "move_number": 17,
+      "player": "white",
+      "move_type": "classical",
+      "move": {
+        "type": "classical",
+        "from": "d1",
+        "to": "a4",
+        "promotion": null
+      },
+      "board_state": {
+        "fen": "rn2kb2/1p2pppr/5n2/p2p4/Q7/2P5/1P1PPPP1/2B1KBN1 b q - 0 8",
+        "turn": "black",
+        "classical_pieces": {
+          "c1": {
+            "type": "bishop",
+            "color": "white"
+          },
+          "e1": {
+            "type": "king",
+            "color": "white"
+          },
+          "f1": {
+            "type": "bishop",
+            "color": "white"
+          },
+          "g1": {
+            "type": "knight",
+            "color": "white"
+          },
+          "b2": {
+            "type": "pawn",
+            "color": "white"
+          },
+          "d2": {
+            "type": "pawn",
+            "color": "white"
+          },
+          "e2": {
+            "type": "pawn",
+            "color": "white"
+          },
+          "f2": {
+            "type": "pawn",
+            "color": "white"
+          },
+          "g2": {
+            "type": "pawn",
+            "color": "white"
+          },
+          "c3": {
+            "type": "pawn",
+            "color": "white"
+          },
+          "a4": {
+            "type": "queen",
+            "color": "white"
+          },
+          "a5": {
+            "type": "pawn",
+            "color": "black"
+          },
+          "d5": {
+            "type": "pawn",
+            "color": "black"
+          },
+          "f6": {
+            "type": "knight",
+            "color": "black"
+          },
+          "b7": {
+            "type": "pawn",
+            "color": "black"
+          },
+          "e7": {
+            "type": "pawn",
+            "color": "black"
+          },
+          "f7": {
+            "type": "pawn",
+            "color": "black"
+          },
+          "g7": {
+            "type": "pawn",
+            "color": "black"
+          },
+          "h7": {
+            "type": "rook",
+            "color": "black"
+          },
+          "a8": {
+            "type": "rook",
+            "color": "black"
+          },
+          "b8": {
+            "type": "knight",
+            "color": "black"
+          },
+          "e8": {
+            "type": "king",
+            "color": "black"
+          },
+          "f8": {
+            "type": "bishop",
+            "color": "black"
+          }
+        },
+        "quantum_pieces": [
+          {
+            "id": 62,
+            "piece_type": "rook",
+            "color": "white",
+            "positions": [
+              "a3",
+              "a2"
+            ],
+            "probabilities": [
+              0.5,
+              0.5
+            ],
+            "entangled_with": null
+          }
+        ],
+        "white_king_prob": 1.0,
+        "black_king_prob": 1.0,
+        "quantum_piece_count": 1
+      },
+      "events": [
+        "COLLAPSED:n\u2192f6 (discarded: ['h6'])"
+      ],
+      "validation_issues": []
+    },
+    {
+      "move_number": 18,
+      "player": "black",
+      "move_type": "classical",
+      "move": {
+        "type": "classical",
+        "from": "a8",
+        "to": "a6",
+        "promotion": null
+      },
+      "board_state": {
+        "fen": "1n2kb2/1p2pppr/r4n2/p2p4/Q7/2P5/1P1PPPP1/2B1KBN1 w - - 1 9",
+        "turn": "white",
+        "classical_pieces": {
+          "c1": {
+            "type": "bishop",
+            "color": "white"
+          },
+          "e1": {
+            "type": "king",
+            "color": "white"
+          },
+          "f1": {
+            "type": "bishop",
+            "color": "white"
+          },
+          "g1": {
+            "type": "knight",
+            "color": "white"
+          },
+          "b2": {
+            "type": "pawn",
+            "color": "white"
+          },
+          "d2": {
+            "type": "pawn",
+            "color": "white"
+          },
+          "e2": {
+            "type": "pawn",
+            "color": "white"
+          },
+          "f2": {
+            "type": "pawn",
+            "color": "white"
+          },
+          "g2": {
+            "type": "pawn",
+            "color": "white"
+          },
+          "c3": {
+            "type": "pawn",
+            "color": "white"
+          },
+          "a4": {
+            "type": "queen",
+            "color": "white"
+          },
+          "a5": {
+            "type": "pawn",
+            "color": "black"
+          },
+          "d5": {
+            "type": "pawn",
+            "color": "black"
+          },
+          "a6": {
+            "type": "rook",
+            "color": "black"
+          },
+          "f6": {
+            "type": "knight",
+            "color": "black"
+          },
+          "b7": {
+            "type": "pawn",
+            "color": "black"
+          },
+          "e7": {
+            "type": "pawn",
+            "color": "black"
+          },
+          "f7": {
+            "type": "pawn",
+            "color": "black"
+          },
+          "g7": {
+            "type": "pawn",
+            "color": "black"
+          },
+          "h7": {
+            "type": "rook",
+            "color": "black"
+          },
+          "b8": {
+            "type": "knight",
+            "color": "black"
+          },
+          "e8": {
+            "type": "king",
+            "color": "black"
+          },
+          "f8": {
+            "type": "bishop",
+            "color": "black"
+          }
+        },
+        "quantum_pieces": [
+          {
+            "id": 62,
+            "piece_type": "rook",
+            "color": "white",
+            "positions": [
+              "a3",
+              "a2"
+            ],
+            "probabilities": [
+              0.5,
+              0.5
+            ],
+            "entangled_with": null
+          }
+        ],
+        "white_king_prob": 1.0,
+        "black_king_prob": 1.0,
+        "quantum_piece_count": 1
+      },
+      "events": [
+        "COLLAPSED:n\u2192f6 (discarded: ['h6'])"
+      ],
       "validation_issues": []
     },
     {
@@ -2620,31 +2777,35 @@
       "move_type": "classical",
       "move": {
         "type": "classical",
-        "from": "d2",
-        "to": "d4",
+        "from": "a4",
+        "to": "e8",
         "promotion": null
       },
       "board_state": {
-        "fen": "r1b1kb2/pp2pppr/3p1n2/5P2/3P4/8/PP2PKPP/RN3R2 b q - 0 8",
+        "fen": "1n2Qb2/1p2pppr/r4n2/p2p4/8/2P5/1P1PPPP1/2B1KBN1 b - - 0 9",
         "turn": "black",
         "classical_pieces": {
-          "a1": {
-            "type": "rook",
+          "c1": {
+            "type": "bishop",
             "color": "white"
           },
-          "b1": {
-            "type": "knight",
+          "e1": {
+            "type": "king",
             "color": "white"
           },
           "f1": {
-            "type": "rook",
+            "type": "bishop",
             "color": "white"
           },
-          "a2": {
-            "type": "pawn",
+          "g1": {
+            "type": "knight",
             "color": "white"
           },
           "b2": {
+            "type": "pawn",
+            "color": "white"
+          },
+          "d2": {
             "type": "pawn",
             "color": "white"
           },
@@ -2653,35 +2814,31 @@
             "color": "white"
           },
           "f2": {
-            "type": "king",
+            "type": "pawn",
             "color": "white"
           },
           "g2": {
             "type": "pawn",
             "color": "white"
           },
-          "h2": {
+          "c3": {
             "type": "pawn",
             "color": "white"
           },
-          "d4": {
+          "a5": {
             "type": "pawn",
-            "color": "white"
+            "color": "black"
           },
-          "f5": {
+          "d5": {
             "type": "pawn",
-            "color": "white"
+            "color": "black"
           },
-          "d6": {
-            "type": "pawn",
+          "a6": {
+            "type": "rook",
             "color": "black"
           },
           "f6": {
             "type": "knight",
-            "color": "black"
-          },
-          "a7": {
-            "type": "pawn",
             "color": "black"
           },
           "b7": {
@@ -2704,237 +2861,13 @@
             "type": "rook",
             "color": "black"
           },
-          "a8": {
-            "type": "rook",
-            "color": "black"
-          },
-          "c8": {
-            "type": "bishop",
+          "b8": {
+            "type": "knight",
             "color": "black"
           },
           "e8": {
-            "type": "king",
-            "color": "black"
-          },
-          "f8": {
-            "type": "bishop",
-            "color": "black"
-          }
-        },
-        "quantum_pieces": [],
-        "white_king_prob": 1.0,
-        "black_king_prob": 1.0,
-        "quantum_piece_count": 0
-      },
-      "events": [],
-      "validation_issues": []
-    },
-    {
-      "move_number": 20,
-      "player": "black",
-      "move_type": "classical",
-      "move": {
-        "type": "classical",
-        "from": "h7",
-        "to": "h2",
-        "promotion": null
-      },
-      "board_state": {
-        "fen": "r1b1kb2/pp2ppp1/3p1n2/5P2/3P4/8/PP2PKPr/RN3R2 w q - 0 9",
-        "turn": "white",
-        "classical_pieces": {
-          "a1": {
-            "type": "rook",
+            "type": "queen",
             "color": "white"
-          },
-          "b1": {
-            "type": "knight",
-            "color": "white"
-          },
-          "f1": {
-            "type": "rook",
-            "color": "white"
-          },
-          "a2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "b2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "e2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "f2": {
-            "type": "king",
-            "color": "white"
-          },
-          "g2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "h2": {
-            "type": "rook",
-            "color": "black"
-          },
-          "d4": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "f5": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "d6": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "f6": {
-            "type": "knight",
-            "color": "black"
-          },
-          "a7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "b7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "e7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "f7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "g7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "a8": {
-            "type": "rook",
-            "color": "black"
-          },
-          "c8": {
-            "type": "bishop",
-            "color": "black"
-          },
-          "e8": {
-            "type": "king",
-            "color": "black"
-          },
-          "f8": {
-            "type": "bishop",
-            "color": "black"
-          }
-        },
-        "quantum_pieces": [],
-        "white_king_prob": 1.0,
-        "black_king_prob": 1.0,
-        "quantum_piece_count": 0
-      },
-      "events": [],
-      "validation_issues": []
-    },
-    {
-      "move_number": 21,
-      "player": "white",
-      "move_type": "split",
-      "move": {
-        "type": "split",
-        "from": "f1",
-        "targets": [
-          "d1",
-          "g1"
-        ]
-      },
-      "board_state": {
-        "fen": "r1b1kb2/pp2ppp1/3p1n2/5P2/3P4/8/PP2PKPr/RN6 b q - 0 9",
-        "turn": "black",
-        "classical_pieces": {
-          "a1": {
-            "type": "rook",
-            "color": "white"
-          },
-          "b1": {
-            "type": "knight",
-            "color": "white"
-          },
-          "a2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "b2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "e2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "f2": {
-            "type": "king",
-            "color": "white"
-          },
-          "g2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "h2": {
-            "type": "rook",
-            "color": "black"
-          },
-          "d4": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "f5": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "d6": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "f6": {
-            "type": "knight",
-            "color": "black"
-          },
-          "a7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "b7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "e7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "f7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "g7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "a8": {
-            "type": "rook",
-            "color": "black"
-          },
-          "c8": {
-            "type": "bishop",
-            "color": "black"
-          },
-          "e8": {
-            "type": "king",
-            "color": "black"
           },
           "f8": {
             "type": "bishop",
@@ -2943,12 +2876,12 @@
         },
         "quantum_pieces": [
           {
-            "id": 2,
+            "id": 62,
             "piece_type": "rook",
             "color": "white",
             "positions": [
-              "d1",
-              "g1"
+              "a3",
+              "a2"
             ],
             "probabilities": [
               0.5,
@@ -2958,360 +2891,12 @@
           }
         ],
         "white_king_prob": 1.0,
-        "black_king_prob": 1.0,
+        "black_king_prob": 0.0,
         "quantum_piece_count": 1
       },
-      "events": [],
-      "validation_issues": []
-    },
-    {
-      "move_number": 22,
-      "player": "black",
-      "move_type": "classical",
-      "move": {
-        "type": "classical",
-        "from": "c8",
-        "to": "f5",
-        "promotion": null
-      },
-      "board_state": {
-        "fen": "r3kb2/pp2ppp1/3p1n2/5b2/3P4/8/PP2PKPr/RN6 w q - 0 10",
-        "turn": "white",
-        "classical_pieces": {
-          "a1": {
-            "type": "rook",
-            "color": "white"
-          },
-          "b1": {
-            "type": "knight",
-            "color": "white"
-          },
-          "a2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "b2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "e2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "f2": {
-            "type": "king",
-            "color": "white"
-          },
-          "g2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "h2": {
-            "type": "rook",
-            "color": "black"
-          },
-          "d4": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "f5": {
-            "type": "bishop",
-            "color": "black"
-          },
-          "d6": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "f6": {
-            "type": "knight",
-            "color": "black"
-          },
-          "a7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "b7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "e7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "f7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "g7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "a8": {
-            "type": "rook",
-            "color": "black"
-          },
-          "e8": {
-            "type": "king",
-            "color": "black"
-          },
-          "f8": {
-            "type": "bishop",
-            "color": "black"
-          }
-        },
-        "quantum_pieces": [
-          {
-            "id": 2,
-            "piece_type": "rook",
-            "color": "white",
-            "positions": [
-              "d1",
-              "g1"
-            ],
-            "probabilities": [
-              0.5,
-              0.5
-            ],
-            "entangled_with": null
-          }
-        ],
-        "white_king_prob": 1.0,
-        "black_king_prob": 1.0,
-        "quantum_piece_count": 1
-      },
-      "events": [],
-      "validation_issues": []
-    },
-    {
-      "move_number": 23,
-      "player": "white",
-      "move_type": "classical",
-      "move": {
-        "type": "classical",
-        "from": "g2",
-        "to": "g3",
-        "promotion": null
-      },
-      "board_state": {
-        "fen": "r3kb2/pp2ppp1/3p1n2/5b2/3P4/6P1/PP2PK1r/RN6 b q - 0 10",
-        "turn": "black",
-        "classical_pieces": {
-          "a1": {
-            "type": "rook",
-            "color": "white"
-          },
-          "b1": {
-            "type": "knight",
-            "color": "white"
-          },
-          "a2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "b2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "e2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "f2": {
-            "type": "king",
-            "color": "white"
-          },
-          "h2": {
-            "type": "rook",
-            "color": "black"
-          },
-          "g3": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "d4": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "f5": {
-            "type": "bishop",
-            "color": "black"
-          },
-          "d6": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "f6": {
-            "type": "knight",
-            "color": "black"
-          },
-          "a7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "b7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "e7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "f7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "g7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "a8": {
-            "type": "rook",
-            "color": "black"
-          },
-          "e8": {
-            "type": "king",
-            "color": "black"
-          },
-          "f8": {
-            "type": "bishop",
-            "color": "black"
-          }
-        },
-        "quantum_pieces": [
-          {
-            "id": 2,
-            "piece_type": "rook",
-            "color": "white",
-            "positions": [
-              "d1",
-              "g1"
-            ],
-            "probabilities": [
-              0.5,
-              0.5
-            ],
-            "entangled_with": null
-          }
-        ],
-        "white_king_prob": 1.0,
-        "black_king_prob": 1.0,
-        "quantum_piece_count": 1
-      },
-      "events": [],
-      "validation_issues": []
-    },
-    {
-      "move_number": 24,
-      "player": "black",
-      "move_type": "classical",
-      "move": {
-        "type": "classical",
-        "from": "h2",
-        "to": "f2",
-        "promotion": null
-      },
-      "board_state": {
-        "fen": "r3kb2/pp2ppp1/3p1n2/5b2/3P4/6P1/PP2Pr2/RN6 w q - 0 11",
-        "turn": "white",
-        "classical_pieces": {
-          "a1": {
-            "type": "rook",
-            "color": "white"
-          },
-          "b1": {
-            "type": "knight",
-            "color": "white"
-          },
-          "a2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "b2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "e2": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "f2": {
-            "type": "rook",
-            "color": "black"
-          },
-          "g3": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "d4": {
-            "type": "pawn",
-            "color": "white"
-          },
-          "f5": {
-            "type": "bishop",
-            "color": "black"
-          },
-          "d6": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "f6": {
-            "type": "knight",
-            "color": "black"
-          },
-          "a7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "b7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "e7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "f7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "g7": {
-            "type": "pawn",
-            "color": "black"
-          },
-          "a8": {
-            "type": "rook",
-            "color": "black"
-          },
-          "e8": {
-            "type": "king",
-            "color": "black"
-          },
-          "f8": {
-            "type": "bishop",
-            "color": "black"
-          }
-        },
-        "quantum_pieces": [
-          {
-            "id": 2,
-            "piece_type": "rook",
-            "color": "white",
-            "positions": [
-              "d1",
-              "g1"
-            ],
-            "probabilities": [
-              0.5,
-              0.5
-            ],
-            "entangled_with": null
-          }
-        ],
-        "white_king_prob": 0.0,
-        "black_king_prob": 1.0,
-        "quantum_piece_count": 1
-      },
-      "events": [],
+      "events": [
+        "COLLAPSED:n\u2192f6 (discarded: ['h6'])"
+      ],
       "validation_issues": []
     }
   ]

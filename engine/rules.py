@@ -56,7 +56,8 @@ class RuleEngine:
         """
         Return all legal split moves for *color*.
         A piece can split to any two squares it could legally reach classically.
-        Kings may not split (too powerful; excluded from research spec).
+        Per Cantwell paper rule 8.7, kings CAN split (vs ∈ {N, K}).
+        Only pawns are excluded.
         """
         cb = self._board.classical_board
         moves = []
@@ -64,8 +65,8 @@ class RuleEngine:
             piece = cb.piece_at(sq)
             if piece is None or piece.color != color:
                 continue
-            if piece.piece_type == chess.KING:
-                continue  # Kings cannot split
+            if piece.piece_type == chess.PAWN:
+                continue  # Pawns cannot split
 
             targets = [m.to_square for m in cb.pseudo_legal_moves
                        if m.from_square == sq]
@@ -85,37 +86,16 @@ class RuleEngine:
     def legal_merge_moves(self, color: chess.Color) -> list[Move]:
         """
         Return all legal merge moves for *color*.
-        Two quantum positions of the same piece type merge to one target.
-        The target must be reachable from both source squares.
-        Handles both cross-piece merges and self-merges (a split piece merging
-        its two positions back into one).
+        Only same-lineage merges: a split quantum piece (≥ 2 positions) merging
+        two of its positions back into one target square.
         """
         qs = self._board.quantum_state
         cb = self._board.classical_board
         moves: list[Move] = []
 
-        qpieces = [qp for qp in qs.pieces.values() if qp.piece.color == color]
-
-        # Cross-piece merges: two distinct quantum pieces of the same type
-        for i in range(len(qpieces)):
-            for j in range(i + 1, len(qpieces)):
-                qp1 = qpieces[i]
-                qp2 = qpieces[j]
-                if qp1.piece.piece_type != qp2.piece.piece_type:
-                    continue
-                for sq1 in qp1.positions:
-                    for sq2 in qp2.positions:
-                        if sq1 == sq2:
-                            continue
-                        targets1 = self._pseudo_legal_targets_for_piece(qp1.piece, sq1, cb)
-                        targets2 = self._pseudo_legal_targets_for_piece(qp2.piece, sq2, cb)
-                        for t in set(targets1) & set(targets2):
-                            occ = cb.piece_at(t)
-                            if occ is None or occ.color != color:
-                                moves.append(Move.merge(sq1, sq2, t))
-
-        # Self-merges: a single quantum piece with ≥ 2 positions
-        for qp in qpieces:
+        for qp in qs.pieces.values():
+            if qp.piece.color != color:
+                continue
             if len(qp.positions) < 2:
                 continue
             for i in range(len(qp.positions)):

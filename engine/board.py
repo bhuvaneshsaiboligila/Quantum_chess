@@ -67,14 +67,12 @@ class QuantumBoard:
 
     def _state_fingerprint(self) -> tuple:
         """Lightweight state snapshot for no-effect detection (paper Rule 9)."""
-        board_fen = self.classical_board.board_fen()
+        cb = self.classical_board
         qdata = tuple(
-            (qp.id,
-             tuple(sorted(qp.positions)),
-             tuple(round(abs(a) ** 2, 8) for a in qp.amplitudes))
+            (qp.id, tuple(sorted(qp.positions)))
             for qp in sorted(self.quantum_state.pieces.values(), key=lambda x: x.id)
         )
-        return (board_fen, qdata)
+        return (cb.board_fen(), cb.castling_rights, cb.ep_square, qdata)
 
     def apply_move(self, move: Move) -> bool:
         """
@@ -241,9 +239,6 @@ class QuantumBoard:
             piece, [t1, t2], [amp_each, amp_each]
         )
 
-        # Entangle with quantum pieces that were at the targets before split
-        # (creates correlation: if we split onto an entangled piece's square)
-
         self.quantum_state._rebuild_index()
         return True
 
@@ -262,73 +257,93 @@ class QuantumBoard:
         if not qids1 or not qids2:
             return False
 
-        # Same-lineage only: both source squares must belong to the same quantum piece
+        # Same-lineage only: both sources must belong to the same quantum piece
         if qids1[0] != qids2[0]:
             return False
 
         qid1 = qids1[0]
         qp1 = qs.get(qid1)
-        if qp1 is None:
+        if qp1 is None or qp1.piece.color != self.turn:
             return False
-        if qp1.piece.color != self.turn:
+        if s1 not in qp1.positions or s2 not in qp1.positions:
             return False
-
-        # Retrieve amplitudes at source squares (same piece → use qp1 for both)
-        amp1 = (qp1.amplitudes[qp1.positions.index(s1)]
-                if s1 in qp1.positions else complex(0))
-        amp2 = (qp1.amplitudes[qp1.positions.index(s2)]
-                if s2 in qp1.positions else complex(0))
-
-        # Paper Umerge (eq. 10): target = -i(α+β)/√2, residual at s2 = (α-β)/√2
-        target_amp   = Move.merge_target_amplitude(amp1, amp2)
-        residual_amp = Move.merge_residual_amplitude(amp1, amp2)
-        target_prob   = abs(target_amp) ** 2
-        residual_prob = abs(residual_amp) ** 2
 
         piece_to_place = qp1.piece
 
-        # NDO check on destination
+        # NDO: collapse any quantum pieces at destination
         if self.is_quantum_square(to_sq):
             results = self.measurement.resolve_ndo(to_sq)
             self.measurement_log.extend(results)
 
-        # Remove source positions from the single quantum piece
-        qp1.remove_position(s1)
-        qp1.remove_position(s2)
+        # Reject if destination is occupied by a friendly piece
+        existing = cb.piece_at(to_sq)
+        if existing is not None and existing.color == piece_to_place.color:
+            return False
 
-        # Remove quantum piece if now empty
-        if len(qp1.positions) == 0:
+        # Amplitude math (paper eq. 10)
+        idx1 = qp1.positions.index(s1)
+        idx2 = qp1.positions.index(s2)
+        amp1 = qp1.amplitudes[idx1]
+        amp2 = qp1.amplitudes[idx2]
+
+        merged_amp  = Move.merge_target_amplitude(amp1, amp2)   # -i(α+β)/√2
+        residual_amp = Move.merge_residual_amplitude(amp1, amp2) # (α-β)/√2
+        merged_prob  = abs(merged_amp) ** 2
+
+        if merged_prob < 0.01:
+            return False  # negligible interference — no-op
+
+        if merged_prob >= 0.99:
+            # Deterministic collapse: treat as classical placement
             qs.remove(qid1)
-
-        # Full destructive interference → piece annihilates
-        if target_prob < 1e-9 and residual_prob < 1e-9:
-            qs._rebuild_index()
-            return True
-
-        # Build output: collect non-negligible positions and amplitudes
-        out_positions = []
-        out_amplitudes = []
-        if target_prob >= 1e-9:
-            out_positions.append(to_sq)
-            out_amplitudes.append(target_amp)
-        if residual_prob >= 1e-9:
-            out_positions.append(s2)
-            out_amplitudes.append(residual_amp)
-
-        if len(out_positions) == 1:
-            # Single outcome → collapse to classical
-            existing = cb.piece_at(out_positions[0])
             if existing is not None:
-                cb.remove_piece_at(out_positions[0])
-            cb.set_piece_at(out_positions[0], piece_to_place)
+                cb.remove_piece_at(to_sq)
+            cb.set_piece_at(to_sq, piece_to_place)
         else:
-            # Superposition survives (unequal source amplitudes) → quantum piece
-            total_prob = sum(abs(a) ** 2 for a in out_amplitudes)
-            norm = math.sqrt(total_prob)
-            normed = [a / norm for a in out_amplitudes]
-            qs.create_superposition(piece_to_place, out_positions, normed)
+            # Partial merge: update qp1 in place.
+            # Remove s1 (consumed entirely); adjust idx2 if s1 came before it.
+            qp1.positions.pop(idx1)
+            qp1.amplitudes.pop(idx1)
+            if idx2 > idx1:
+                idx2 -= 1
+
+            # s2 keeps the residual, or is removed if it vanishes
+            if abs(residual_amp) ** 2 < 1e-9:
+                qp1.positions.pop(idx2)
+                qp1.amplitudes.pop(idx2)
+            else:
+                qp1.amplitudes[idx2] = residual_amp
+
+            # to_sq gains the merged amplitude (handles interference if already present)
+            if to_sq in qp1.positions:
+                to_idx = qp1.positions.index(to_sq)
+                qp1.amplitudes[to_idx] += merged_amp
+            else:
+                qp1.positions.append(to_sq)
+                qp1.amplitudes.append(merged_amp)
+
+            if not qp1.positions:
+                qs.remove(qid1)
+            else:
+                qp1._normalize()
+
+            # Capture enemy at destination if present
+            if existing is not None:
+                cb.remove_piece_at(to_sq)
 
         qs._rebuild_index()
+
+        # Invariant: no position may be in both the classical board and quantum
+        # state for the same colour piece
+        remaining = qs.get(qid1)
+        if remaining is not None:
+            for pos in remaining.positions:
+                classical_at = cb.piece_at(pos)
+                assert classical_at is None or classical_at.color != piece_to_place.color, (
+                    f"Merge left {chess.square_name(pos)} in both classical and "
+                    f"quantum state for {piece_to_place}"
+                )
+
         return True
 
     # ------------------------------------------------------------------
@@ -393,6 +408,10 @@ class QuantumBoard:
         self.quantum_state.assert_valid()
         self.measurement.assert_valid()
         self.rules.assert_valid()
+        wp = self.measurement.king_existence_probability(chess.WHITE)
+        bp = self.measurement.king_existence_probability(chess.BLACK)
+        assert wp <= 1.0 + 1e-9, f"White king probability {wp:.4f} exceeds 1.0"
+        assert bp <= 1.0 + 1e-9, f"Black king probability {bp:.4f} exceeds 1.0"
 
     def __repr__(self) -> str:
         return (f"QuantumBoard(turn={self.turn}, "
