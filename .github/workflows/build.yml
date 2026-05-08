@@ -1,0 +1,114 @@
+name: Build and Release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  # ──────────────────────────────────────────────────────────────────────────
+  # Build job — runs in parallel on Linux, Windows, and macOS
+  # ──────────────────────────────────────────────────────────────────────────
+  build:
+    strategy:
+      fail-fast: false          # let other platforms finish even if one fails
+      matrix:
+        include:
+          - os: ubuntu-latest
+            artifact: quantum-chess-linux
+            dist_path: dist/main
+
+          - os: windows-latest
+            artifact: quantum-chess-windows.exe
+            dist_path: dist/main.exe
+
+          - os: macos-latest
+            artifact: quantum-chess-mac
+            dist_path: dist/main
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: pip install pygame python-chess pyinstaller
+
+      - name: Build with PyInstaller
+        run: pyinstaller --onefile --windowed main.py
+
+      # Rename to the canonical artifact name before uploading.
+      # `shell: bash` works on all three OS runners (Git Bash on Windows).
+      - name: Rename executable
+        shell: bash
+        run: cp "${{ matrix.dist_path }}" "${{ matrix.artifact }}"
+
+      - name: Upload executable
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: ${{ matrix.artifact }}
+          if-no-files-found: error
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # Release job — waits for all three builds, then publishes a GitHub Release
+  # ──────────────────────────────────────────────────────────────────────────
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write       # required to create tags and releases
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      # Download all three artifacts into dist/ as a flat directory
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+          path: dist
+
+      - name: Verify artifacts
+        run: ls -lh dist/
+
+      - name: Create or update GitHub Release v1.0
+        uses: ncipollo/release-action@v1
+        with:
+          tag: v1.0
+          name: "Quantum Chess v1.0"
+          body: |
+            Automated release built from commit `${{ github.sha }}`.
+
+            ### Downloads
+
+            | Platform | File |
+            |---|---|
+            | Linux   | `quantum-chess-linux` |
+            | Windows | `quantum-chess-windows.exe` |
+            | macOS   | `quantum-chess-mac` |
+
+            ### How to run
+            ```
+            # Linux / macOS — make executable first
+            chmod +x quantum-chess-linux   # or quantum-chess-mac
+            ./quantum-chess-linux
+
+            # Windows — double-click or run from terminal
+            quantum-chess-windows.exe
+            ```
+          artifacts: >-
+            dist/quantum-chess-linux,
+            dist/quantum-chess-windows.exe,
+            dist/quantum-chess-mac
+          allowUpdates: true        # update release body and assets if v1.0 already exists
+          replacesArtifacts: true   # replace old executables with the newly built ones
+          makeLatest: true
+          token: ${{ secrets.GITHUB_TOKEN }}
