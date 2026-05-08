@@ -1,0 +1,1292 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Quantum Chess</title>
+  <style>
+    :root {
+      --bg: #1e1e28;
+      --bg-soft: #262636;
+      --panel: #12121c;
+      --panel-soft: #181824;
+      --text: #e6e6ee;
+      --muted: #a8adbd;
+      --accent: #00e5ff;
+      --accent-soft: rgba(0, 229, 255, 0.16);
+      --warn: #ffb432;
+      --success: #42d47a;
+      --danger: #ff6b6b;
+      --light-square: #f0d9b5;
+      --dark-square: #b58863;
+      --border: rgba(255, 255, 255, 0.08);
+      --shadow: 0 18px 42px rgba(0, 0, 0, 0.36);
+      --radius: 20px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background:
+        radial-gradient(circle at top, rgba(0, 229, 255, 0.08), transparent 28%),
+        radial-gradient(circle at bottom left, rgba(255, 180, 50, 0.08), transparent 24%),
+        linear-gradient(180deg, #232334 0%, #171721 100%);
+      color: var(--text);
+      font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    button {
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 14px;
+      background: linear-gradient(180deg, #232337 0%, #151520 100%);
+      color: var(--text);
+      min-height: 44px;
+      padding: 10px 16px;
+      font-size: 0.98rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      transition: transform 120ms ease, border-color 120ms ease, background 120ms ease;
+      touch-action: manipulation;
+    }
+
+    button:hover,
+    button:focus-visible {
+      border-color: rgba(0, 229, 255, 0.5);
+      background: linear-gradient(180deg, #292943 0%, #1b1b29 100%);
+      outline: none;
+    }
+
+    button:active {
+      transform: translateY(1px) scale(0.99);
+    }
+
+    .shell {
+      width: min(1280px, 100%);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 18px;
+      background: rgba(16, 16, 24, 0.82);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+
+    .title-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    .title {
+      margin: 0;
+      font-size: clamp(1.2rem, 2.2vw, 2rem);
+      letter-spacing: 0.03em;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .controls button.active {
+      border-color: rgba(255, 180, 50, 0.7);
+      box-shadow: inset 0 0 0 1px rgba(255, 180, 50, 0.22), 0 0 0 4px rgba(255, 180, 50, 0.08);
+      color: #fff5d4;
+    }
+
+    .layout {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      gap: 18px;
+    }
+
+    .board-column {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      min-width: 0;
+      flex: 1 1 auto;
+    }
+
+    .board-card {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      padding: 16px;
+      background: rgba(16, 16, 24, 0.82);
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+
+    #boardCanvas {
+      display: block;
+      border-radius: 24px;
+      touch-action: none;
+    }
+
+    .status-bar {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      gap: 14px;
+      align-items: center;
+      padding: 16px 18px;
+      background: rgba(18, 18, 28, 0.92);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .mode-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 0 14px;
+      border-radius: 999px;
+      background: rgba(255, 180, 50, 0.14);
+      border: 1px solid rgba(255, 180, 50, 0.24);
+      color: #ffd485;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+    }
+
+    .status-copy {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .status-copy strong {
+      font-size: 0.98rem;
+    }
+
+    .status-copy span {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .status-copy .error {
+      color: #ffc7c7;
+    }
+
+    .side-panel {
+      width: 200px;
+      min-width: 200px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      padding: 16px;
+      background: rgba(12, 12, 18, 0.92);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+
+    .panel-section {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .panel-title {
+      margin: 0;
+      color: #f6f6fb;
+      font-size: 0.9rem;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+    }
+
+    .turn-card {
+      padding: 14px;
+      border-radius: 16px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02));
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .turn-value {
+      font-size: 1.2rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+    }
+
+    .turn-subtext {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.35;
+    }
+
+    .prob-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .prob-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.9rem;
+      color: var(--text);
+    }
+
+    .prob-bar {
+      height: 10px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .prob-fill {
+      height: 100%;
+      border-radius: inherit;
+      transition: width 180ms ease;
+    }
+
+    .prob-fill.white {
+      background: linear-gradient(90deg, #f8f6f0 0%, #d0d7e2 100%);
+    }
+
+    .prob-fill.black {
+      background: linear-gradient(90deg, #00d8ff 0%, #3e6dff 100%);
+    }
+
+    .history-list {
+      max-height: 260px;
+      overflow-y: auto;
+      padding-right: 4px;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .history-list::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .history-list::-webkit-scrollbar-thumb {
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.14);
+    }
+
+    .move-item {
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.9rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .captured-box {
+      min-height: 52px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 1.35rem;
+      line-height: 1.2;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .captured-label {
+      color: var(--muted);
+      font-size: 0.84rem;
+    }
+
+    .empty-state {
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    @media (max-width: 980px) {
+      body {
+        padding: 12px;
+      }
+
+      .topbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .controls {
+        justify-content: stretch;
+      }
+
+      .controls button {
+        flex: 1 1 120px;
+      }
+
+      .layout {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .board-card {
+        padding: 10px;
+      }
+
+      .status-bar {
+        grid-template-columns: 1fr;
+      }
+
+      .side-panel {
+        width: 100%;
+        min-width: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="title-wrap">
+        <h1 class="title">Quantum Chess</h1>
+        <p class="subtitle">Canvas board, Flask engine, ghost pieces, and split/merge controls.</p>
+      </div>
+      <div class="controls">
+        <button id="normalBtn" type="button">Normal</button>
+        <button id="splitBtn" type="button">Split (Q)</button>
+        <button id="mergeBtn" type="button">Merge (M)</button>
+        <button id="resetBtn" type="button">Reset (R)</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="board-column">
+        <div class="board-card">
+          <canvas id="boardCanvas" aria-label="Quantum Chess Board"></canvas>
+        </div>
+        <div class="status-bar">
+          <div class="mode-pill" id="modePill">NORMAL</div>
+          <div class="status-copy">
+            <strong id="statusHeadline">Loading board...</strong>
+            <span id="statusDetail">Connecting to the Flask API.</span>
+            <span id="statusError" class="error"></span>
+          </div>
+        </div>
+      </section>
+
+      <aside class="side-panel">
+        <section class="panel-section">
+          <h2 class="panel-title">Turn</h2>
+          <div class="turn-card">
+            <div class="turn-value" id="turnValue">--</div>
+            <div class="turn-subtext" id="turnSubtext">Waiting for state...</div>
+          </div>
+        </section>
+
+        <section class="panel-section">
+          <h2 class="panel-title">King Existence</h2>
+          <div class="prob-row">
+            <div class="prob-head"><span>White King</span><span id="whitePct">0%</span></div>
+            <div class="prob-bar"><div class="prob-fill white" id="whiteBar"></div></div>
+          </div>
+          <div class="prob-row">
+            <div class="prob-head"><span>Black King</span><span id="blackPct">0%</span></div>
+            <div class="prob-bar"><div class="prob-fill black" id="blackBar"></div></div>
+          </div>
+        </section>
+
+        <section class="panel-section">
+          <h2 class="panel-title">Move History</h2>
+          <div class="history-list" id="historyList"></div>
+        </section>
+
+        <section class="panel-section">
+          <h2 class="panel-title">Captured Pieces</h2>
+          <div class="captured-label">Captured by White</div>
+          <div class="captured-box" id="capturedWhite"></div>
+          <div class="captured-label">Captured by Black</div>
+          <div class="captured-box" id="capturedBlack"></div>
+        </section>
+      </aside>
+    </main>
+  </div>
+
+  <script>
+    const API = ""
+
+    async function getState() {
+      const r = await fetch(API + "/api/state")
+      return await r.json()
+    }
+
+    async function sendMove(moveData) {
+      const r = await fetch(API + "/api/move", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(moveData)
+      })
+      return await r.json()
+    }
+
+    const canvas = document.getElementById("boardCanvas")
+    const ctx = canvas.getContext("2d")
+    const normalBtn = document.getElementById("normalBtn")
+    const splitBtn = document.getElementById("splitBtn")
+    const mergeBtn = document.getElementById("mergeBtn")
+    const resetBtn = document.getElementById("resetBtn")
+    const modePill = document.getElementById("modePill")
+    const statusHeadline = document.getElementById("statusHeadline")
+    const statusDetail = document.getElementById("statusDetail")
+    const statusError = document.getElementById("statusError")
+    const turnValue = document.getElementById("turnValue")
+    const turnSubtext = document.getElementById("turnSubtext")
+    const whiteBar = document.getElementById("whiteBar")
+    const blackBar = document.getElementById("blackBar")
+    const whitePct = document.getElementById("whitePct")
+    const blackPct = document.getElementById("blackPct")
+    const historyList = document.getElementById("historyList")
+    const capturedWhite = document.getElementById("capturedWhite")
+    const capturedBlack = document.getElementById("capturedBlack")
+
+    const PIECES = {
+      "K": "♔", "Q": "♕", "R": "♖", "B": "♗", "N": "♘", "P": "♙",
+      "k": "♚", "q": "♛", "r": "♜", "b": "♝", "n": "♞", "p": "♟"
+    }
+
+    const ui = {
+      mode: "NORMAL",
+      selectedSquare: null,
+      legalTargets: [],
+      splitSource: null,
+      splitTarget1: null,
+      mergeSource1: null,
+      mergeSource2: null,
+      waitingForAi: false,
+      loading: false,
+      pollTimer: null,
+      thinkTimer: null,
+      boardRect: null,
+      statusError: "",
+      messageOverride: ""
+    }
+
+    let state = null
+    let parsedMoves = {classical: [], split: [], merge: []}
+
+    function clearTimers() {
+      if (ui.pollTimer) {
+        clearInterval(ui.pollTimer)
+        ui.pollTimer = null
+      }
+      if (ui.thinkTimer) {
+        clearTimeout(ui.thinkTimer)
+        ui.thinkTimer = null
+      }
+      ui.waitingForAi = false
+    }
+
+    function resetSelections() {
+      ui.selectedSquare = null
+      ui.legalTargets = []
+      ui.splitSource = null
+      ui.splitTarget1 = null
+      ui.mergeSource1 = null
+      ui.mergeSource2 = null
+    }
+
+    function setMode(mode) {
+      ui.mode = mode
+      resetSelections()
+      render()
+    }
+
+    function parseLegalMoves(legalMoves) {
+      const result = {classical: [], split: [], merge: []}
+      for (const move of legalMoves || []) {
+        if (/^[a-h][1-8][a-h][1-8][qrbn]?$/.test(move)) {
+          result.classical.push({
+            raw: move,
+            from: move.slice(0, 2),
+            to: move.slice(2, 4),
+            promotion: move.length > 4 ? move.slice(4) : null
+          })
+          continue
+        }
+
+        const splitMatch = /^split:([a-h][1-8]):([a-h][1-8]):([a-h][1-8])$/.exec(move)
+        if (splitMatch) {
+          result.split.push({
+            raw: move,
+            from: splitMatch[1],
+            to1: splitMatch[2],
+            to2: splitMatch[3]
+          })
+          continue
+        }
+
+        const mergeMatch = /^merge:([a-h][1-8]):([a-h][1-8]):([a-h][1-8])$/.exec(move)
+        if (mergeMatch) {
+          result.merge.push({
+            raw: move,
+            from1: mergeMatch[1],
+            from2: mergeMatch[2],
+            to: mergeMatch[3]
+          })
+        }
+      }
+      return result
+    }
+
+    function uniqSquares(values) {
+      return [...new Set(values)]
+    }
+
+    function classicalMovesFrom(square) {
+      return parsedMoves.classical.filter(move => move.from === square)
+    }
+
+    function splitMovesFrom(square) {
+      return parsedMoves.split.filter(move => move.from === square)
+    }
+
+    function mergeMovesForSource(square) {
+      return parsedMoves.merge.filter(move => move.from1 === square || move.from2 === square)
+    }
+
+    function squareHasCurrentClassicalPiece(square) {
+      if (!state) return false
+      return state.classical_pieces.some(piece => piece.square === square && piece.color === state.turn)
+    }
+
+    function squareHasQuantumPiece(square) {
+      if (!state) return false
+      return state.quantum_pieces.some(piece => piece.squares.includes(square) && piece.color === state.turn)
+    }
+
+    function getInstruction() {
+      if (state && state.game_over) {
+        if (state.winner === "white") return "Game over: White wins"
+        if (state.winner === "black") return "Game over: Black wins"
+        return "Game over"
+      }
+
+      if (ui.waitingForAi) {
+        return "Black is thinking..."
+      }
+
+      if (ui.mode === "SPLIT") {
+        if (!ui.splitSource) return "Click piece to split"
+        if (!ui.splitTarget1) return "Click first target square"
+        return "Click second target square"
+      }
+
+      if (ui.mode === "MERGE") {
+        if (!ui.mergeSource1) return "Click first ghost square"
+        if (!ui.mergeSource2) return "Click second ghost square"
+        return "Click target square"
+      }
+
+      return "Click a piece to select"
+    }
+
+    function getStatusHeadline() {
+      if (ui.mode === "SPLIT") return "SPLIT"
+      if (ui.mode === "MERGE") return "MERGE"
+      return "NORMAL"
+    }
+
+    function updateStatus() {
+      modePill.textContent = ui.mode
+      statusHeadline.textContent = getStatusHeadline()
+
+      if (ui.messageOverride) {
+        statusDetail.textContent = ui.messageOverride
+      } else if (!state) {
+        statusDetail.textContent = "Connecting to the Flask API."
+      } else if (state.turn !== "white" && !state.game_over) {
+        statusDetail.textContent = ui.waitingForAi ? "Polling every 500ms for Black's move." : getInstruction()
+      } else {
+        statusDetail.textContent = getInstruction()
+      }
+
+      statusError.textContent = ui.statusError || ""
+    }
+
+    function updateButtons() {
+      normalBtn.classList.toggle("active", ui.mode === "NORMAL")
+      splitBtn.classList.toggle("active", ui.mode === "SPLIT")
+      mergeBtn.classList.toggle("active", ui.mode === "MERGE")
+    }
+
+    function updateSidePanel() {
+      if (!state) {
+        turnValue.textContent = "--"
+        turnSubtext.textContent = "Waiting for state..."
+        whiteBar.style.width = "0%"
+        blackBar.style.width = "0%"
+        whitePct.textContent = "0%"
+        blackPct.textContent = "0%"
+        historyList.innerHTML = '<div class="empty-state">No moves yet.</div>'
+        capturedWhite.innerHTML = '<span class="empty-state">None</span>'
+        capturedBlack.innerHTML = '<span class="empty-state">None</span>'
+        return
+      }
+
+      turnValue.textContent = state.turn.toUpperCase()
+      if (state.game_over) {
+        turnSubtext.textContent = state.winner ? `${state.winner} wins.` : "Draw."
+      } else if (ui.waitingForAi) {
+        turnSubtext.textContent = "Waiting for Black's reply."
+      } else {
+        turnSubtext.textContent = state.turn === "white" ? "Your move." : "Black to move."
+      }
+
+      const whitePercent = Math.round((state.white_king_prob || 0) * 100)
+      const blackPercent = Math.round((state.black_king_prob || 0) * 100)
+      whiteBar.style.width = `${whitePercent}%`
+      blackBar.style.width = `${blackPercent}%`
+      whitePct.textContent = `${whitePercent}%`
+      blackPct.textContent = `${blackPercent}%`
+
+      const history = (state.move_history || []).slice(-20).reverse()
+      if (history.length === 0) {
+        historyList.innerHTML = '<div class="empty-state">No moves yet.</div>'
+      } else {
+        historyList.innerHTML = history.map((move, index) => {
+          const moveNumber = (state.move_history.length - index)
+          return `<div class="move-item">${moveNumber}. ${escapeHtml(move)}</div>`
+        }).join("")
+      }
+
+      capturedWhite.innerHTML = renderCaptured(state.captured_white)
+      capturedBlack.innerHTML = renderCaptured(state.captured_black)
+    }
+
+    function renderCaptured(pieces) {
+      if (!pieces || pieces.length === 0) {
+        return '<span class="empty-state">None</span>'
+      }
+      return pieces.map(piece => `<span>${PIECES[piece] || piece}</span>`).join("")
+    }
+
+    function escapeHtml(text) {
+      return text
+        .split("&").join("&amp;")
+        .split("<").join("&lt;")
+        .split(">").join("&gt;")
+    }
+
+    function resizeCanvas() {
+      const mobile = window.innerWidth <= 980
+      const statusReserve = mobile ? 250 : 190
+      const panelReserve = mobile ? 0 : 250
+      const rawSize = mobile
+        ? Math.min(window.innerWidth, window.innerHeight) - 40
+        : Math.min(window.innerHeight - statusReserve, window.innerWidth - panelReserve - 40)
+      const cssSize = Math.max(280, Math.floor(rawSize))
+      const dpr = window.devicePixelRatio || 1
+
+      canvas.style.width = `${cssSize}px`
+      canvas.style.height = `${cssSize}px`
+      canvas.width = Math.floor(cssSize * dpr)
+      canvas.height = Math.floor(cssSize * dpr)
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+
+      const coordPad = Math.max(22, Math.floor(cssSize * 0.055))
+      const outerPad = Math.max(8, Math.floor(cssSize * 0.015))
+      const boardSize = cssSize - coordPad - outerPad
+      const square = Math.floor(boardSize / 8)
+      const boardPx = square * 8
+      const offsetX = coordPad
+      const offsetY = outerPad
+
+      ui.boardRect = {
+        cssSize,
+        coordPad,
+        outerPad,
+        boardPx,
+        square,
+        offsetX,
+        offsetY
+      }
+    }
+
+    function algebraicToCoords(square) {
+      if (!ui.boardRect) return null
+      const file = square.charCodeAt(0) - 97
+      const rank = Number(square[1])
+      const x = ui.boardRect.offsetX + file * ui.boardRect.square
+      const y = ui.boardRect.offsetY + (8 - rank) * ui.boardRect.square
+      return {x, y}
+    }
+
+    function canvasPointToSquare(clientX, clientY) {
+      if (!ui.boardRect) return null
+      const rect = canvas.getBoundingClientRect()
+      const x = clientX - rect.left
+      const y = clientY - rect.top
+      const {offsetX, offsetY, boardPx, square} = ui.boardRect
+
+      if (x < offsetX || x > offsetX + boardPx || y < offsetY || y > offsetY + boardPx) {
+        return null
+      }
+
+      const file = Math.floor((x - offsetX) / square)
+      const rank = 8 - Math.floor((y - offsetY) / square)
+      return String.fromCharCode(97 + file) + String(rank)
+    }
+
+    function quantumEntriesBySquare() {
+      const entries = new Map()
+      const quantumPieces = state && state.quantum_pieces ? state.quantum_pieces : []
+      for (const qp of quantumPieces) {
+        qp.squares.forEach((square, index) => {
+          const list = entries.get(square) || []
+          list.push({
+            piece: qp.piece,
+            color: qp.color,
+            probability: qp.probabilities[index] || 0
+          })
+          entries.set(square, list)
+        })
+      }
+      return entries
+    }
+
+    function selectedSquares() {
+      const squares = []
+      if (ui.mode === "NORMAL" && ui.selectedSquare) squares.push(ui.selectedSquare)
+      if (ui.mode === "SPLIT" && ui.splitSource) squares.push(ui.splitSource)
+      if (ui.mode === "SPLIT" && ui.splitTarget1) squares.push(ui.splitTarget1)
+      if (ui.mode === "MERGE" && ui.mergeSource1) squares.push(ui.mergeSource1)
+      if (ui.mode === "MERGE" && ui.mergeSource2) squares.push(ui.mergeSource2)
+      return squares
+    }
+
+    function renderBoard() {
+      if (!ui.boardRect) return
+
+      const {cssSize, coordPad, boardPx, square, offsetX, offsetY} = ui.boardRect
+      ctx.clearRect(0, 0, cssSize, cssSize)
+
+      const bg = ctx.createLinearGradient(0, 0, cssSize, cssSize)
+      bg.addColorStop(0, "rgba(255,255,255,0.04)")
+      bg.addColorStop(1, "rgba(255,255,255,0.01)")
+      ctx.fillStyle = bg
+      roundRect(ctx, 0, 0, cssSize, cssSize, 24)
+      ctx.fill()
+
+      ctx.strokeStyle = "rgba(255,255,255,0.06)"
+      ctx.lineWidth = 1
+      roundRect(ctx, 0.5, 0.5, cssSize - 1, cssSize - 1, 24)
+      ctx.stroke()
+
+      for (let rank = 8; rank >= 1; rank--) {
+        for (let file = 0; file < 8; file++) {
+          const x = offsetX + file * square
+          const y = offsetY + (8 - rank) * square
+          const isLight = (file + rank) % 2 === 1
+          ctx.fillStyle = isLight ? "#f0d9b5" : "#b58863"
+          ctx.fillRect(x, y, square, square)
+        }
+      }
+
+      const selected = selectedSquares()
+      for (const squareName of selected) {
+        const coords = algebraicToCoords(squareName)
+        if (!coords) continue
+        ctx.save()
+        ctx.strokeStyle = "#fff266"
+        ctx.lineWidth = Math.max(3, square * 0.07)
+        ctx.shadowColor = "rgba(255, 242, 102, 0.65)"
+        ctx.shadowBlur = square * 0.28
+        ctx.strokeRect(
+          coords.x + 2,
+          coords.y + 2,
+          square - 4,
+          square - 4
+        )
+        ctx.restore()
+      }
+
+      const quantumMap = quantumEntriesBySquare()
+      for (const [squareName] of quantumMap) {
+        const coords = algebraicToCoords(squareName)
+        if (!coords) continue
+        ctx.save()
+        ctx.strokeStyle = "rgba(0, 229, 255, 0.95)"
+        ctx.lineWidth = Math.max(2, square * 0.045)
+        ctx.shadowColor = "rgba(0, 229, 255, 0.95)"
+        ctx.shadowBlur = square * 0.25
+        ctx.strokeRect(
+          coords.x + 3,
+          coords.y + 3,
+          square - 6,
+          square - 6
+        )
+        ctx.restore()
+      }
+
+      if (state) {
+        ctx.font = `${Math.floor(square * 0.75)}px "Segoe UI Symbol", "Apple Color Emoji", serif`
+        ctx.textAlign = "center"
+        ctx.textBaseline = "middle"
+
+        for (const piece of state.classical_pieces) {
+          drawPiece(piece.square, piece.piece, 1)
+        }
+
+        for (const [squareName, pieces] of quantumMap) {
+          pieces.forEach((piece, index) => {
+            drawPiece(squareName, piece.piece, 0.6, index)
+            drawProbability(squareName, piece.probability, index)
+          })
+        }
+      }
+
+      for (const squareName of ui.legalTargets) {
+        const coords = algebraicToCoords(squareName)
+        if (!coords) continue
+        ctx.save()
+        ctx.fillStyle = "rgba(40, 220, 90, 0.9)"
+        ctx.shadowColor = "rgba(40, 220, 90, 0.7)"
+        ctx.shadowBlur = square * 0.18
+        ctx.beginPath()
+        ctx.arc(
+          coords.x + square / 2,
+          coords.y + square / 2,
+          Math.max(7, square * 0.11),
+          0,
+          Math.PI * 2
+        )
+        ctx.fill()
+        ctx.restore()
+      }
+
+      ctx.fillStyle = "rgba(230, 230, 238, 0.88)"
+      ctx.font = `${Math.max(12, Math.floor(coordPad * 0.58))}px "Segoe UI", sans-serif`
+      ctx.textAlign = "center"
+      ctx.textBaseline = "middle"
+
+      for (let file = 0; file < 8; file++) {
+        const x = offsetX + file * square + square / 2
+        const y = offsetY + boardPx + coordPad * 0.55
+        ctx.fillText(String.fromCharCode(97 + file), x, y)
+      }
+
+      ctx.textAlign = "center"
+      for (let rank = 8; rank >= 1; rank--) {
+        const x = coordPad * 0.44
+        const y = offsetY + (8 - rank) * square + square / 2
+        ctx.fillText(String(rank), x, y)
+      }
+    }
+
+    function drawPiece(squareName, pieceSymbol, alpha, stackIndex = 0) {
+      const coords = algebraicToCoords(squareName)
+      if (!coords) return
+      const char = PIECES[pieceSymbol] || pieceSymbol
+      const square = ui.boardRect.square
+      const jitter = stackIndex * Math.max(4, square * 0.05)
+
+      ctx.save()
+      ctx.globalAlpha = alpha
+      ctx.fillStyle = pieceSymbol === pieceSymbol.toUpperCase() ? "#fffdf7" : "#121212"
+      ctx.shadowColor = alpha < 1 ? "rgba(0, 229, 255, 0.95)" : "rgba(0, 0, 0, 0.45)"
+      ctx.shadowBlur = alpha < 1 ? square * 0.25 : square * 0.09
+      ctx.fillText(
+        char,
+        coords.x + square / 2,
+        coords.y + square / 2 + jitter * 0.08
+      )
+      ctx.restore()
+    }
+
+    function drawProbability(squareName, probability, stackIndex = 0) {
+      const coords = algebraicToCoords(squareName)
+      if (!coords) return
+      const square = ui.boardRect.square
+      const pct = `${Math.round(probability * 100)}%`
+
+      ctx.save()
+      ctx.font = `${Math.max(10, Math.floor(square * 0.17))}px "Segoe UI", sans-serif`
+      ctx.textAlign = "left"
+      ctx.textBaseline = "top"
+      ctx.fillStyle = "#8ff9ff"
+      ctx.shadowColor = "rgba(0, 229, 255, 0.8)"
+      ctx.shadowBlur = square * 0.12
+      ctx.fillText(
+        pct,
+        coords.x + square * 0.08,
+        coords.y + square * 0.08 + stackIndex * Math.max(10, square * 0.13)
+      )
+      ctx.restore()
+    }
+
+    function roundRect(context, x, y, width, height, radius) {
+      context.beginPath()
+      context.moveTo(x + radius, y)
+      context.lineTo(x + width - radius, y)
+      context.quadraticCurveTo(x + width, y, x + width, y + radius)
+      context.lineTo(x + width, y + height - radius)
+      context.quadraticCurveTo(x + width, y + height, x + width - radius, y + height)
+      context.lineTo(x + radius, y + height)
+      context.quadraticCurveTo(x, y + height, x, y + height - radius)
+      context.lineTo(x, y + radius)
+      context.quadraticCurveTo(x, y, x + radius, y)
+      context.closePath()
+    }
+
+    function render() {
+      updateButtons()
+      updateStatus()
+      updateSidePanel()
+      renderBoard()
+    }
+
+    async function refreshState() {
+      try {
+        ui.statusError = ""
+        const nextState = await getState()
+        state = nextState
+        parsedMoves = parseLegalMoves(state.legal_moves)
+        render()
+      } catch (error) {
+        ui.statusError = `Failed to fetch state: ${error.message}`
+        render()
+      }
+    }
+
+    async function performMove(moveData) {
+      if (ui.loading || !state) return
+      ui.loading = true
+      ui.statusError = ""
+      ui.messageOverride = "Sending move..."
+      render()
+
+      try {
+        const response = await sendMove(moveData)
+        if (response.error) {
+          if (response.state) {
+            state = response.state
+            parsedMoves = parseLegalMoves(state.legal_moves)
+          }
+          ui.statusError = response.error
+          ui.messageOverride = ""
+          render()
+          return
+        }
+
+        state = response
+        parsedMoves = parseLegalMoves(state.legal_moves)
+        resetSelections()
+        setMode("NORMAL")
+        ui.messageOverride = ""
+        render()
+
+        if (!state.game_over && state.turn === "black") {
+          startAiPolling()
+        }
+      } catch (error) {
+        ui.statusError = `Move failed: ${error.message}`
+        ui.messageOverride = ""
+        render()
+      } finally {
+        ui.loading = false
+      }
+    }
+
+    function startAiPolling() {
+      clearTimers()
+      ui.waitingForAi = true
+      ui.messageOverride = "Black is thinking..."
+      render()
+
+      ui.thinkTimer = setTimeout(() => {
+        const poll = async () => {
+          try {
+            const nextState = await getState()
+            state = nextState
+            parsedMoves = parseLegalMoves(state.legal_moves)
+            if (state.turn === "white" || state.game_over) {
+              clearTimers()
+              ui.messageOverride = ""
+            }
+            render()
+          } catch (error) {
+            ui.statusError = `Polling failed: ${error.message}`
+            render()
+          }
+        }
+
+        poll()
+        ui.pollTimer = setInterval(poll, 500)
+      }, 1800)
+    }
+
+    function normalTargetsFor(square) {
+      return classicalMovesFrom(square).map(move => move.to)
+    }
+
+    function splitTargetsForSource(square) {
+      return uniqSquares(
+        splitMovesFrom(square).flatMap(move => [move.to1, move.to2])
+      )
+    }
+
+    function splitSecondTargets(source, firstTarget) {
+      const matches = splitMovesFrom(source).filter(move =>
+        move.to1 === firstTarget || move.to2 === firstTarget
+      )
+      return uniqSquares(matches.map(move => move.to1 === firstTarget ? move.to2 : move.to1))
+    }
+
+    function mergeSecondSources(firstSource) {
+      const matches = mergeMovesForSource(firstSource)
+      return uniqSquares(matches.map(move => move.from1 === firstSource ? move.from2 : move.from1))
+    }
+
+    function mergeTargets(firstSource, secondSource) {
+      return uniqSquares(
+        parsedMoves.merge
+          .filter(move => {
+            const sources = [move.from1, move.from2]
+            return sources.includes(firstSource) && sources.includes(secondSource)
+          })
+          .map(move => move.to)
+      )
+    }
+
+    function handleNormalClick(square) {
+      if (!state || state.turn !== "white") return
+
+      if (ui.selectedSquare && ui.legalTargets.includes(square)) {
+        const move = classicalMovesFrom(ui.selectedSquare).find(candidate => candidate.to === square)
+        if (!move) return
+        performMove({
+          type: "classical",
+          from: move.from,
+          to: move.to,
+          ...(move.promotion ? {promotion: move.promotion} : {})
+        })
+        return
+      }
+
+      if (!squareHasCurrentClassicalPiece(square)) {
+        ui.selectedSquare = null
+        ui.legalTargets = []
+        render()
+        return
+      }
+
+      if (ui.selectedSquare === square) {
+        ui.selectedSquare = null
+        ui.legalTargets = []
+        render()
+        return
+      }
+
+      ui.selectedSquare = square
+      ui.legalTargets = normalTargetsFor(square)
+      render()
+    }
+
+    function handleSplitClick(square) {
+      if (!state || state.turn !== "white") return
+
+      if (!ui.splitSource) {
+        if (!squareHasCurrentClassicalPiece(square)) return
+        const targets = splitTargetsForSource(square)
+        if (targets.length === 0) return
+        ui.splitSource = square
+        ui.legalTargets = targets
+        render()
+        return
+      }
+
+      if (!ui.splitTarget1) {
+        if (!ui.legalTargets.includes(square) || square === ui.splitSource) return
+        ui.splitTarget1 = square
+        ui.legalTargets = splitSecondTargets(ui.splitSource, square)
+        render()
+        return
+      }
+
+      if (!ui.legalTargets.includes(square) || square === ui.splitSource || square === ui.splitTarget1) {
+        return
+      }
+
+      performMove({
+        type: "split",
+        from: ui.splitSource,
+        to1: ui.splitTarget1,
+        to2: square
+      })
+    }
+
+    function handleMergeClick(square) {
+      if (!state || state.turn !== "white") return
+
+      if (!ui.mergeSource1) {
+        if (!squareHasQuantumPiece(square)) return
+        const options = mergeSecondSources(square)
+        if (options.length === 0) return
+        ui.mergeSource1 = square
+        ui.legalTargets = options
+        render()
+        return
+      }
+
+      if (!ui.mergeSource2) {
+        if (!ui.legalTargets.includes(square) || square === ui.mergeSource1) return
+        ui.mergeSource2 = square
+        ui.legalTargets = mergeTargets(ui.mergeSource1, square)
+        render()
+        return
+      }
+
+      if (!ui.legalTargets.includes(square)) return
+
+      performMove({
+        type: "merge",
+        from1: ui.mergeSource1,
+        from2: ui.mergeSource2,
+        to: square
+      })
+    }
+
+    function handleBoardInteraction(event) {
+      event.preventDefault()
+      if (!state || ui.loading || ui.waitingForAi || state.game_over) return
+
+      const point = event.touches && event.touches[0] ? event.touches[0] : event
+      const square = canvasPointToSquare(point.clientX, point.clientY)
+      if (!square) return
+
+      ui.statusError = ""
+      ui.messageOverride = ""
+
+      if (ui.mode === "SPLIT") {
+        handleSplitClick(square)
+        return
+      }
+
+      if (ui.mode === "MERGE") {
+        handleMergeClick(square)
+        return
+      }
+
+      handleNormalClick(square)
+    }
+
+    async function resetGame() {
+      clearTimers()
+      resetSelections()
+      ui.statusError = ""
+      ui.messageOverride = "Resetting board..."
+      render()
+
+      try {
+        const response = await fetch(API + "/api/reset", {method: "POST"})
+        state = await response.json()
+        parsedMoves = parseLegalMoves(state.legal_moves)
+        setMode("NORMAL")
+        ui.messageOverride = ""
+        render()
+      } catch (error) {
+        ui.statusError = `Reset failed: ${error.message}`
+        ui.messageOverride = ""
+        render()
+      }
+    }
+
+    function handleKeydown(event) {
+      if (event.repeat) return
+
+      if (event.key === "q" || event.key === "Q") {
+        setMode("SPLIT")
+        return
+      }
+
+      if (event.key === "m" || event.key === "M") {
+        setMode("MERGE")
+        return
+      }
+
+      if (event.key === "r" || event.key === "R") {
+        resetGame()
+        return
+      }
+
+      if (event.key === "Escape") {
+        setMode("NORMAL")
+      }
+    }
+
+    function bindEvents() {
+      canvas.addEventListener("pointerdown", handleBoardInteraction)
+      window.addEventListener("keydown", handleKeydown)
+      window.addEventListener("resize", () => {
+        resizeCanvas()
+        render()
+      })
+
+      normalBtn.addEventListener("click", () => setMode("NORMAL"))
+      splitBtn.addEventListener("click", () => setMode("SPLIT"))
+      mergeBtn.addEventListener("click", () => setMode("MERGE"))
+      resetBtn.addEventListener("click", resetGame)
+    }
+
+    async function boot() {
+      resizeCanvas()
+      bindEvents()
+      render()
+      await refreshState()
+      if (state && state.turn === "black" && !state.game_over) {
+        startAiPolling()
+      }
+    }
+
+    boot()
+  </script>
+</body>
+</html>

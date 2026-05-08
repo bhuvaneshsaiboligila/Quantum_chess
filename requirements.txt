@@ -1,0 +1,5 @@
+pygame==2.5.2
+python-chess==1.999
+flask==3.0.0
+flask-cors==4.0.0
+gunicorn==21.2.0
