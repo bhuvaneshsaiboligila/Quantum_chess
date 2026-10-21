@@ -1,13 +1,15 @@
 from __future__ import annotations
 
+import os
 import sys
 import threading
 import time
+import uuid
 from pathlib import Path
 from typing import Any
 
 import chess
-from flask import Flask, jsonify, request, send_from_directory
+from flask import Flask, jsonify, request, send_from_directory, session
 from flask_cors import CORS
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -15,13 +17,14 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from engine.board import QuantumBoard
+from engine.measurement import MeasurementResult
 from engine.move import Move, MoveType
 from gui.gui import AI_THINK_TIME, QuantumAI
 
 
 app = Flask(__name__)
-CORS(app)
-game_lock = threading.Lock()
+app.secret_key = os.environ.get("FLASK_SECRET_KEY", "dev-insecure-key-change-me")
+CORS(app, supports_credentials=True)
 ai = QuantumAI()
 ai_job_counter = 0
 
@@ -32,15 +35,45 @@ def _init_board_metadata(board: QuantumBoard) -> QuantumBoard:
     board.api_captured_white = []
     board.api_captured_black = []
     board.api_ai_thinking = False
+    board.api_last_measurements = []
+    board.api_vs_computer = True
     return board
 
 
-game_board = _init_board_metadata(QuantumBoard())
+class GameSession:
+    """One quantum chess game, with its own lock, for one browser session."""
+
+    def __init__(self) -> None:
+        self.board = _init_board_metadata(QuantumBoard())
+        self.lock = threading.Lock()
+
+
+games: dict[str, GameSession] = {}
+games_lock = threading.Lock()
+
+
+def _get_session() -> GameSession:
+    sid = session.get("game_id")
+    if not sid:
+        sid = uuid.uuid4().hex
+        session["game_id"] = sid
+
+    with games_lock:
+        game_session = games.get(sid)
+        if game_session is None:
+            game_session = GameSession()
+            games[sid] = game_session
+        return game_session
 
 
 @app.route("/")
 def index():
     return send_from_directory(app.root_path, "index.html")
+
+
+@app.route("/assets/<path:filename>")
+def assets(filename):
+    return send_from_directory(PROJECT_ROOT / "assets", filename)
 
 
 def _color_name(color: chess.Color) -> str:
@@ -116,6 +149,15 @@ def _record_direct_capture(
         _record_capture(board, victim)
 
 
+def _measurement_to_dict(result: MeasurementResult) -> dict[str, Any]:
+    return {
+        "piece": result.piece.symbol(),
+        "color": _color_name(result.piece.color),
+        "square": chess.square_name(result.chosen_square),
+        "captured": result.captured_piece.symbol() if result.captured_piece else None,
+    }
+
+
 def _apply_and_track_move(board: QuantumBoard, move: Move) -> bool:
     before_board = board.classical_board.copy(stack=True)
     measurement_log_size = len(board.measurement_log)
@@ -125,19 +167,27 @@ def _apply_and_track_move(board: QuantumBoard, move: Move) -> bool:
     if not success:
         return False
 
-    for result in board.measurement_log[measurement_log_size:]:
+    new_results = board.measurement_log[measurement_log_size:]
+    for result in new_results:
         if result.captured_piece is not None:
             _record_capture(board, result.captured_piece)
 
     _record_direct_capture(board, before_board, move, mover_color)
     board.api_last_move = move
+    board.api_last_measurements = [_measurement_to_dict(r) for r in new_results]
     return True
 
 
-def _schedule_ai_turn(board: QuantumBoard) -> None:
+def _schedule_ai_turn(game_session: GameSession) -> None:
     global ai_job_counter
 
-    if board.api_ai_thinking or board.turn != chess.BLACK or board.is_game_over():
+    board = game_session.board
+    if (
+        board.api_ai_thinking
+        or board.turn != chess.BLACK
+        or board.is_game_over()
+        or not board.api_vs_computer
+    ):
         return
 
     board.api_ai_thinking = True
@@ -145,17 +195,22 @@ def _schedule_ai_turn(board: QuantumBoard) -> None:
     job_id = ai_job_counter
     worker = threading.Thread(
         target=_run_ai_turn,
-        args=(board, job_id),
+        args=(game_session, board, job_id),
         daemon=True,
     )
     worker.start()
 
 
-def _run_ai_turn(board: QuantumBoard, job_id: int) -> None:
+def _run_ai_turn(game_session: GameSession, board: QuantumBoard, job_id: int) -> None:
     time.sleep(AI_THINK_TIME / 1000)
 
-    with game_lock:
-        if game_board is not board or board.turn != chess.BLACK or board.is_game_over():
+    with game_session.lock:
+        if (
+            game_session.board is not board
+            or board.turn != chess.BLACK
+            or board.is_game_over()
+            or not board.api_vs_computer
+        ):
             board.api_ai_thinking = False
             return
 
@@ -307,6 +362,8 @@ def board_to_json(board: QuantumBoard) -> dict[str, Any]:
         "last_move": _move_to_string(getattr(board, "api_last_move", None)),
         "captured_white": list(getattr(board, "api_captured_white", [])),
         "captured_black": list(getattr(board, "api_captured_black", [])),
+        "measurements": list(getattr(board, "api_last_measurements", [])),
+        "vs_computer": bool(getattr(board, "api_vs_computer", True)),
         "move_history": [
             move_text
             for move_text in (_move_to_string(move) for move in board.move_history)
@@ -317,8 +374,9 @@ def board_to_json(board: QuantumBoard) -> dict[str, Any]:
 
 @app.get("/api/state")
 def get_state():
-    with game_lock:
-        return jsonify(board_to_json(game_board))
+    game_session = _get_session()
+    with game_session.lock:
+        return jsonify(board_to_json(game_session.board))
 
 
 @app.post("/api/move")
@@ -332,27 +390,50 @@ def apply_move():
     except ValueError as exc:
         return jsonify({"error": str(exc)}), 400
 
-    with game_lock:
-        if not _apply_and_track_move(game_board, move):
+    game_session = _get_session()
+    with game_session.lock:
+        board = game_session.board
+        if not _apply_and_track_move(board, move):
             return jsonify(
                 {
                     "error": "Illegal or unsuccessful move",
-                    "state": board_to_json(game_board),
+                    "state": board_to_json(board),
                 }
             ), 400
 
-        if game_board.turn == chess.BLACK and not game_board.is_game_over():
-            _schedule_ai_turn(game_board)
+        if board.turn == chess.BLACK and not board.is_game_over() and board.api_vs_computer:
+            _schedule_ai_turn(game_session)
 
-        return jsonify(board_to_json(game_board))
+        return jsonify(board_to_json(board))
 
 
 @app.post("/api/reset")
 def reset_game():
-    global game_board
-    with game_lock:
-        game_board = _init_board_metadata(QuantumBoard())
-        return jsonify(board_to_json(game_board))
+    game_session = _get_session()
+    with game_session.lock:
+        vs_computer = bool(getattr(game_session.board, "api_vs_computer", True))
+        game_session.board = _init_board_metadata(QuantumBoard())
+        game_session.board.api_vs_computer = vs_computer
+        return jsonify(board_to_json(game_session.board))
+
+
+@app.post("/api/mode")
+def set_mode():
+    payload = request.get_json(silent=True)
+    if not isinstance(payload, dict):
+        return jsonify({"error": "Request body must be a JSON object"}), 400
+
+    vs_computer = bool(payload.get("vs_computer", True))
+
+    game_session = _get_session()
+    with game_session.lock:
+        board = game_session.board
+        board.api_vs_computer = vs_computer
+
+        if vs_computer and board.turn == chess.BLACK and not board.is_game_over():
+            _schedule_ai_turn(game_session)
+
+        return jsonify(board_to_json(board))
 
 
 if __name__ == "__main__":
