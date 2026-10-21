@@ -502,6 +502,14 @@
 
       <aside class="panel">
         <div class="panel-block">
+          <h2>Mode</h2>
+          <div class="controls">
+            <button type="button" class="game-mode-btn active" data-vs="computer">vs Computer</button>
+            <button type="button" class="game-mode-btn" data-vs="local">2 players</button>
+          </div>
+        </div>
+
+        <div class="panel-block">
           <h2>Turn</h2>
           <div class="turn-value" id="turnValue">—</div>
           <div class="turn-sub" id="turnSub">Connecting to the server.</div>
@@ -640,7 +648,8 @@
       pollTimer: null,
       thinkTimer: null,
       errorMessage: "",
-      pendingPromotion: null // {from, to}
+      pendingPromotion: null, // {from, to}
+      vsComputer: true
     }
 
     let state = null
@@ -869,7 +878,7 @@
         else if (!ui.mergeSource2) text = "Click the second quantum square to merge."
         else text = "Click the destination square."
       } else {
-        text = state.turn === "white" ? "Your move." : "Black to move."
+        text = state.turn === "white" ? "White to move." : "Black to move."
       }
 
       statusLine.textContent = text
@@ -889,7 +898,7 @@
       } else if (ui.waitingForAi) {
         turnSub.textContent = "Waiting for Black's reply."
       } else {
-        turnSub.textContent = state.turn === "white" ? "Your move." : "Black to move."
+        turnSub.textContent = state.turn === "white" ? "White to move." : "Black to move."
       }
 
       const wp = Math.round((state.white_king_prob || 0) * 100)
@@ -929,6 +938,9 @@
     function renderButtons() {
       document.querySelectorAll(".mode-btn").forEach(btn => {
         btn.classList.toggle("active", btn.dataset.mode === ui.mode)
+      })
+      document.querySelectorAll(".game-mode-btn").forEach(btn => {
+        btn.classList.toggle("active", (btn.dataset.vs === "computer") === ui.vsComputer)
       })
     }
 
@@ -1015,7 +1027,7 @@
         ui.mode = "normal"
         render()
 
-        if (!state.game_over && state.turn === "black") {
+        if (ui.vsComputer && !state.game_over && state.turn === "black") {
           startAiPolling()
         }
       } catch (error) {
@@ -1060,9 +1072,39 @@
         const response = await fetch(API + "/api/reset", {method: "POST", credentials: "same-origin"})
         state = await response.json()
         parsedMoves = parseLegalMoves(state.legal_moves)
+        ui.vsComputer = state.vs_computer !== false
         render()
       } catch (error) {
         ui.errorMessage = `Reset failed: ${error.message}`
+        render()
+      }
+    }
+
+    async function setGameMode(vsComputer) {
+      if (ui.vsComputer === vsComputer) return
+      ui.vsComputer = vsComputer
+      clearTimers()
+      resetSelections()
+      ui.mode = "normal"
+      ui.errorMessage = ""
+      render()
+
+      try {
+        const response = await fetch(API + "/api/mode", {
+          method: "POST",
+          credentials: "same-origin",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({vs_computer: vsComputer})
+        })
+        state = await response.json()
+        parsedMoves = parseLegalMoves(state.legal_moves)
+        render()
+
+        if (ui.vsComputer && !state.game_over && state.turn === "black") {
+          startAiPolling()
+        }
+      } catch (error) {
+        ui.errorMessage = `Could not change mode: ${error.message}`
         render()
       }
     }
@@ -1131,7 +1173,7 @@
     })
 
     function handleNormalClick(square) {
-      if (!state || state.turn !== "white") return
+      if (!state || (ui.vsComputer && state.turn === "black")) return
 
       if (ui.selectedSquare && ui.legalTargets.includes(square)) {
         if (isPromotionTarget(ui.selectedSquare, square)) {
@@ -1168,7 +1210,7 @@
     }
 
     function handleSplitClick(square) {
-      if (!state || state.turn !== "white") return
+      if (!state || (ui.vsComputer && state.turn === "black")) return
 
       if (!ui.splitSource) {
         if (!squareHasCurrentClassicalPiece(square)) return
@@ -1194,7 +1236,7 @@
     }
 
     function handleMergeClick(square) {
-      if (!state || state.turn !== "white") return
+      if (!state || (ui.vsComputer && state.turn === "black")) return
 
       if (!ui.mergeSource1) {
         if (!squareHasCurrentQuantumPiece(square)) return
@@ -1252,6 +1294,9 @@
       document.querySelectorAll(".mode-btn").forEach(btn => {
         btn.addEventListener("click", () => setMode(btn.dataset.mode))
       })
+      document.querySelectorAll(".game-mode-btn").forEach(btn => {
+        btn.addEventListener("click", () => setGameMode(btn.dataset.vs === "computer"))
+      })
       newGameBtn.addEventListener("click", resetGame)
       gameOverNewGame.addEventListener("click", resetGame)
     }
@@ -1261,7 +1306,9 @@
       bindEvents()
       render()
       await refreshState()
-      if (state && state.turn === "black" && !state.game_over) {
+      if (state) ui.vsComputer = state.vs_computer !== false
+      render()
+      if (ui.vsComputer && state && state.turn === "black" && !state.game_over) {
         startAiPolling()
       }
     }
