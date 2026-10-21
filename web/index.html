@@ -3,25 +3,26 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Quantum Chess</title>
+  <title>Quantum chess</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #1e1e28;
-      --bg-soft: #262636;
-      --panel: #12121c;
-      --panel-soft: #181824;
-      --text: #e6e6ee;
-      --muted: #a8adbd;
-      --accent: #00e5ff;
-      --accent-soft: rgba(0, 229, 255, 0.16);
-      --warn: #ffb432;
-      --success: #42d47a;
-      --danger: #ff6b6b;
-      --light-square: #f0d9b5;
-      --dark-square: #b58863;
-      --border: rgba(255, 255, 255, 0.08);
-      --shadow: 0 18px 42px rgba(0, 0, 0, 0.36);
-      --radius: 20px;
+      --bg: #f7f6f3;
+      --panel-bg: #ffffff;
+      --border: #d9d6cd;
+      --text: #2a2a26;
+      --muted: #74716a;
+      --light-square: #ece9e1;
+      --dark-square: #a8a295;
+      --accent: #5c6b63;
+      --accent-soft: #e4e8e5;
+      --danger: #9c4a3c;
+      --danger-soft: #f3e4e1;
+      --ok: #3c6b4a;
+      --ok-soft: #e3ece5;
+      --radius: 4px;
     }
 
     * {
@@ -30,470 +31,604 @@
 
     html, body {
       margin: 0;
-      min-height: 100%;
-      background:
-        radial-gradient(circle at top, rgba(0, 229, 255, 0.08), transparent 28%),
-        radial-gradient(circle at bottom left, rgba(255, 180, 50, 0.08), transparent 24%),
-        linear-gradient(180deg, #232334 0%, #171721 100%);
+      padding: 0;
+      background: var(--bg);
       color: var(--text);
-      font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+      font-size: 15px;
+      line-height: 1.45;
     }
 
     body {
-      display: flex;
-      justify-content: center;
       padding: 20px;
     }
 
-    button {
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 14px;
-      background: linear-gradient(180deg, #232337 0%, #151520 100%);
-      color: var(--text);
-      min-height: 44px;
-      padding: 10px 16px;
-      font-size: 0.98rem;
+    h1, h2 {
       font-weight: 600;
-      letter-spacing: 0.02em;
-      cursor: pointer;
-      transition: transform 120ms ease, border-color 120ms ease, background 120ms ease;
-      touch-action: manipulation;
-    }
-
-    button:hover,
-    button:focus-visible {
-      border-color: rgba(0, 229, 255, 0.5);
-      background: linear-gradient(180deg, #292943 0%, #1b1b29 100%);
-      outline: none;
-    }
-
-    button:active {
-      transform: translateY(1px) scale(0.99);
-    }
-
-    .shell {
-      width: min(1280px, 100%);
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .topbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 16px;
-      padding: 14px 18px;
-      background: rgba(16, 16, 24, 0.82);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(12px);
-    }
-
-    .title-wrap {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      min-width: 0;
-    }
-
-    .title {
       margin: 0;
-      font-size: clamp(1.2rem, 2.2vw, 2rem);
-      letter-spacing: 0.03em;
     }
 
-    .subtitle {
-      margin: 0;
+    .page {
+      max-width: 1040px;
+      margin: 0 auto;
+    }
+
+    header {
+      margin-bottom: 18px;
+    }
+
+    header h1 {
+      font-size: 1.4rem;
+    }
+
+    header .tag {
+      margin: 4px 0 0;
       color: var(--muted);
-      font-size: 0.95rem;
-    }
-
-    .controls {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-      gap: 10px;
-    }
-
-    .controls button.active {
-      border-color: rgba(255, 180, 50, 0.7);
-      box-shadow: inset 0 0 0 1px rgba(255, 180, 50, 0.22), 0 0 0 4px rgba(255, 180, 50, 0.08);
-      color: #fff5d4;
+      font-size: 0.92rem;
     }
 
     .layout {
       display: flex;
       align-items: flex-start;
-      justify-content: center;
-      gap: 18px;
+      gap: 24px;
     }
 
-    .board-column {
+    .board-area {
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+
+    .board-outer {
+      display: grid;
+      grid-template-columns: 18px 1fr;
+      grid-template-rows: 1fr 18px;
+      width: min(560px, 100%);
+      margin: 0 auto;
+    }
+
+    .ranks {
+      grid-row: 1;
+      grid-column: 1;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      gap: 14px;
-      min-width: 0;
-      flex: 1 1 auto;
     }
 
-    .board-card {
-      width: 100%;
+    .ranks span {
+      flex: 1 1 0;
       display: flex;
-      justify-content: center;
-      padding: 16px;
-      background: rgba(16, 16, 24, 0.82);
-      border: 1px solid var(--border);
-      border-radius: 28px;
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(12px);
-    }
-
-    #boardCanvas {
-      display: block;
-      border-radius: 24px;
-      touch-action: none;
-    }
-
-    .status-bar {
-      width: 100%;
-      display: grid;
-      grid-template-columns: 180px 1fr;
-      gap: 14px;
       align-items: center;
-      padding: 16px 18px;
-      background: rgba(18, 18, 28, 0.92);
+      justify-content: center;
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+
+    .files {
+      grid-row: 2;
+      grid-column: 2;
+      display: flex;
+    }
+
+    .files span {
+      flex: 1 1 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+
+    .board {
+      grid-row: 1;
+      grid-column: 2;
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      grid-template-rows: repeat(8, 1fr);
+      aspect-ratio: 1 / 1;
+      border: 1px solid var(--border);
+    }
+
+    .square {
+      all: unset;
+      box-sizing: border-box;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      aspect-ratio: 1 / 1;
+    }
+
+    .square.light { background: var(--light-square); }
+    .square.dark  { background: var(--dark-square); }
+
+    .square.last-move::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: rgba(92, 107, 99, 0.22);
+    }
+
+    .square.selected {
+      outline: 2px solid var(--accent);
+      outline-offset: -2px;
+    }
+
+    .square.target::after {
+      content: "";
+      position: absolute;
+      width: 24%;
+      height: 24%;
+      border-radius: 50%;
+      background: var(--accent);
+      opacity: 0.55;
+    }
+
+    .square.target.occupied::after {
+      width: 100%;
+      height: 100%;
+      border-radius: 0;
+      background: transparent;
+      border: 3px solid var(--accent);
+      opacity: 0.6;
+      box-sizing: border-box;
+    }
+
+    .piece-stack {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      gap: 2px;
+      flex-wrap: wrap;
+    }
+
+    .piece-img {
+      width: 80%;
+      max-height: 80%;
+      object-fit: contain;
+      pointer-events: none;
+    }
+
+    .piece-stack[data-count="2"] .piece-img,
+    .piece-stack[data-count="3"] .piece-img {
+      width: 48%;
+    }
+
+    .quantum-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .quantum-wrap .piece-img {
+      opacity: 0.5;
+    }
+
+    .quantum-wrap .prob {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      font-size: 0.62rem;
+      font-weight: 600;
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.78);
+      padding: 0 2px;
+      line-height: 1.3;
+    }
+
+    .quantum-badge {
+      position: absolute;
+      top: 1px;
+      left: 2px;
+      font-size: 0.58rem;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .status-line {
+      margin-top: 12px;
+      min-height: 1.4em;
+      font-size: 0.92rem;
+      text-align: center;
+    }
+
+    .status-line.error { color: var(--danger); }
+    .status-line.measurement { color: var(--accent); }
+
+    .panel {
+      width: 270px;
+      flex: 0 0 270px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .panel-block {
+      background: var(--panel-bg);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      box-shadow: var(--shadow);
+      padding: 12px 14px;
     }
 
-    .mode-pill {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 44px;
-      padding: 0 14px;
-      border-radius: 999px;
-      background: rgba(255, 180, 50, 0.14);
-      border: 1px solid rgba(255, 180, 50, 0.24);
-      color: #ffd485;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-    }
-
-    .status-copy {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      min-width: 0;
-    }
-
-    .status-copy strong {
-      font-size: 0.98rem;
-    }
-
-    .status-copy span {
+    .panel-block h2 {
+      font-size: 0.8rem;
       color: var(--muted);
-      font-size: 0.92rem;
-    }
-
-    .status-copy .error {
-      color: #ffc7c7;
-    }
-
-    .side-panel {
-      width: 200px;
-      min-width: 200px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      padding: 16px;
-      background: rgba(12, 12, 18, 0.92);
-      border: 1px solid var(--border);
-      border-radius: 24px;
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(12px);
-    }
-
-    .panel-section {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      min-width: 0;
-    }
-
-    .panel-title {
-      margin: 0;
-      color: #f6f6fb;
-      font-size: 0.9rem;
-      font-weight: 700;
-      letter-spacing: 0.07em;
-      text-transform: uppercase;
-    }
-
-    .turn-card {
-      padding: 14px;
-      border-radius: 16px;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02));
-      border: 1px solid rgba(255, 255, 255, 0.06);
+      font-weight: 600;
+      margin-bottom: 8px;
     }
 
     .turn-value {
-      font-size: 1.2rem;
-      font-weight: 800;
-      letter-spacing: 0.05em;
+      font-weight: 600;
+      font-size: 1rem;
     }
 
-    .turn-subtext {
-      margin-top: 6px;
+    .turn-sub {
+      margin-top: 2px;
       color: var(--muted);
-      font-size: 0.88rem;
-      line-height: 1.35;
+      font-size: 0.85rem;
     }
 
-    .prob-row {
+    .controls {
       display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .prob-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      font-size: 0.9rem;
-      color: var(--text);
-    }
-
-    .prob-bar {
-      height: 10px;
-      border-radius: 999px;
-      overflow: hidden;
-      background: rgba(255, 255, 255, 0.08);
-    }
-
-    .prob-fill {
-      height: 100%;
-      border-radius: inherit;
-      transition: width 180ms ease;
-    }
-
-    .prob-fill.white {
-      background: linear-gradient(90deg, #f8f6f0 0%, #d0d7e2 100%);
-    }
-
-    .prob-fill.black {
-      background: linear-gradient(90deg, #00d8ff 0%, #3e6dff 100%);
-    }
-
-    .history-list {
-      max-height: 260px;
-      overflow-y: auto;
-      padding-right: 4px;
-      margin: 0;
-      display: flex;
-      flex-direction: column;
+      flex-wrap: wrap;
       gap: 8px;
     }
 
-    .history-list::-webkit-scrollbar {
-      width: 8px;
+    button {
+      font-family: inherit;
+      font-size: 0.85rem;
+      color: var(--text);
+      background: var(--panel-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 7px 11px;
+      cursor: pointer;
+      min-height: 38px;
     }
 
-    .history-list::-webkit-scrollbar-thumb {
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.14);
+    button:hover {
+      background: var(--accent-soft);
     }
 
-    .move-item {
-      padding: 10px 12px;
-      border-radius: 12px;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      font-size: 0.9rem;
+    button.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .controls button {
+      flex: 1 1 auto;
+    }
+
+    #newGameBtn {
+      width: 100%;
+      margin-top: 2px;
+    }
+
+    .king-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      font-size: 0.85rem;
+    }
+
+    .king-row:last-child { margin-bottom: 0; }
+
+    .king-row .king-label {
+      width: 42px;
+      flex: 0 0 42px;
+    }
+
+    .bar {
+      flex: 1 1 auto;
+      height: 8px;
+      background: var(--accent-soft);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .bar .fill {
+      height: 100%;
+      background: var(--accent);
+    }
+
+    .king-row .pct {
+      width: 34px;
+      flex: 0 0 34px;
+      text-align: right;
+      color: var(--muted);
+    }
+
+    .captured-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 6px;
+      font-size: 0.82rem;
+    }
+
+    .captured-row:last-child { margin-bottom: 0; }
+
+    .cap-label {
+      flex: 0 0 68px;
+      color: var(--muted);
+      padding-top: 3px;
+    }
+
+    .piece-row {
+      flex: 1 1 auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 3px;
+      min-height: 20px;
+    }
+
+    .piece-row img {
+      width: 18px;
+      height: 18px;
+      object-fit: contain;
+    }
+
+    .piece-row .empty {
+      color: var(--muted);
+    }
+
+    .move-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      max-height: 220px;
+      overflow-y: auto;
+      font-size: 0.82rem;
+    }
+
+    .move-list li {
+      display: flex;
+      gap: 6px;
+      padding: 3px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .move-list li:last-child { border-bottom: none; }
+
+    .move-list .num {
+      color: var(--muted);
+      width: 20px;
+      flex: 0 0 20px;
+    }
+
+    .move-list .w, .move-list .b {
+      flex: 1 1 0;
+      min-width: 0;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
 
-    .captured-box {
-      min-height: 52px;
-      padding: 10px 12px;
-      border-radius: 14px;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      font-size: 1.35rem;
-      line-height: 1.2;
+    .empty-note {
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    .how-to p {
+      margin: 0 0 6px;
+      font-size: 0.83rem;
+      color: var(--muted);
+    }
+
+    .how-to p:last-child { margin-bottom: 0; }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(30, 28, 24, 0.45);
       display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
       align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 10;
     }
 
-    .captured-label {
-      color: var(--muted);
-      font-size: 0.84rem;
+    .modal-backdrop[hidden] { display: none; }
+
+    .modal {
+      background: var(--panel-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      width: min(360px, 100%);
+      text-align: center;
     }
 
-    .empty-state {
-      color: var(--muted);
-      font-size: 0.88rem;
+    .modal p {
+      margin: 0 0 12px;
+      font-weight: 600;
     }
 
-    @media (max-width: 980px) {
-      body {
-        padding: 12px;
-      }
+    .promo-choices {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+    }
 
-      .topbar {
-        flex-direction: column;
-        align-items: stretch;
-      }
+    .promo-choices button {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 8px;
+      width: 72px;
+    }
 
-      .controls {
-        justify-content: stretch;
-      }
+    .promo-choices img {
+      width: 36px;
+      height: 36px;
+    }
 
-      .controls button {
-        flex: 1 1 120px;
-      }
+    @media (max-width: 760px) {
+      body { padding: 12px; }
 
       .layout {
         flex-direction: column;
-        align-items: center;
       }
 
-      .board-card {
-        padding: 10px;
-      }
-
-      .status-bar {
-        grid-template-columns: 1fr;
-      }
-
-      .side-panel {
+      .panel {
         width: 100%;
-        min-width: 0;
+        flex: 1 1 auto;
       }
     }
   </style>
 </head>
 <body>
-  <div class="shell">
-    <header class="topbar">
-      <div class="title-wrap">
-        <h1 class="title">Quantum Chess</h1>
-        <p class="subtitle">Canvas board, Flask engine, ghost pieces, and split/merge controls.</p>
-      </div>
-      <div class="controls">
-        <button id="normalBtn" type="button">Normal</button>
-        <button id="splitBtn" type="button">Split (Q)</button>
-        <button id="mergeBtn" type="button">Merge (M)</button>
-        <button id="resetBtn" type="button">Reset (R)</button>
-      </div>
+  <div class="page">
+    <header>
+      <h1>Quantum chess</h1>
+      <p class="tag">Chess with superposition — split a piece between two squares, merge it back, and watch probability collapse on measurement.</p>
     </header>
 
     <main class="layout">
-      <section class="board-column">
-        <div class="board-card">
-          <canvas id="boardCanvas" aria-label="Quantum Chess Board"></canvas>
+      <section class="board-area">
+        <div class="board-outer">
+          <div class="ranks" id="ranks"></div>
+          <div class="board" id="board"></div>
+          <div class="files" id="files"></div>
         </div>
-        <div class="status-bar">
-          <div class="mode-pill" id="modePill">NORMAL</div>
-          <div class="status-copy">
-            <strong id="statusHeadline">Loading board...</strong>
-            <span id="statusDetail">Connecting to the Flask API.</span>
-            <span id="statusError" class="error"></span>
-          </div>
-        </div>
+        <p class="status-line" id="statusLine">Loading board…</p>
       </section>
 
-      <aside class="side-panel">
-        <section class="panel-section">
-          <h2 class="panel-title">Turn</h2>
-          <div class="turn-card">
-            <div class="turn-value" id="turnValue">--</div>
-            <div class="turn-subtext" id="turnSubtext">Waiting for state...</div>
-          </div>
-        </section>
+      <aside class="panel">
+        <div class="panel-block">
+          <h2>Turn</h2>
+          <div class="turn-value" id="turnValue">—</div>
+          <div class="turn-sub" id="turnSub">Connecting to the server.</div>
+        </div>
 
-        <section class="panel-section">
-          <h2 class="panel-title">King Existence</h2>
-          <div class="prob-row">
-            <div class="prob-head"><span>White King</span><span id="whitePct">0%</span></div>
-            <div class="prob-bar"><div class="prob-fill white" id="whiteBar"></div></div>
-          </div>
-          <div class="prob-row">
-            <div class="prob-head"><span>Black King</span><span id="blackPct">0%</span></div>
-            <div class="prob-bar"><div class="prob-fill black" id="blackBar"></div></div>
-          </div>
-        </section>
+        <div class="panel-block controls">
+          <button type="button" class="mode-btn active" data-mode="normal">Normal</button>
+          <button type="button" class="mode-btn" data-mode="split">Split (Q)</button>
+          <button type="button" class="mode-btn" data-mode="merge">Merge (M)</button>
+          <button type="button" id="newGameBtn">New game (R)</button>
+        </div>
 
-        <section class="panel-section">
-          <h2 class="panel-title">Move History</h2>
-          <div class="history-list" id="historyList"></div>
-        </section>
+        <div class="panel-block">
+          <h2>King existence</h2>
+          <div class="king-row">
+            <span class="king-label">White</span>
+            <div class="bar"><div class="fill" id="whiteFill" style="width:100%"></div></div>
+            <span class="pct" id="whitePct">100%</span>
+          </div>
+          <div class="king-row">
+            <span class="king-label">Black</span>
+            <div class="bar"><div class="fill" id="blackFill" style="width:100%"></div></div>
+            <span class="pct" id="blackPct">100%</span>
+          </div>
+        </div>
 
-        <section class="panel-section">
-          <h2 class="panel-title">Captured Pieces</h2>
-          <div class="captured-label">Captured by White</div>
-          <div class="captured-box" id="capturedWhite"></div>
-          <div class="captured-label">Captured by Black</div>
-          <div class="captured-box" id="capturedBlack"></div>
-        </section>
+        <div class="panel-block">
+          <h2>Captured</h2>
+          <div class="captured-row">
+            <span class="cap-label">White took</span>
+            <div class="piece-row" id="capturedWhite"><span class="empty">None</span></div>
+          </div>
+          <div class="captured-row">
+            <span class="cap-label">Black took</span>
+            <div class="piece-row" id="capturedBlack"><span class="empty">None</span></div>
+          </div>
+        </div>
+
+        <div class="panel-block">
+          <h2>Moves</h2>
+          <ol class="move-list" id="moveList"><li class="empty-note" style="border:none;">No moves yet.</li></ol>
+        </div>
+
+        <div class="panel-block how-to">
+          <h2>How to play</h2>
+          <p><strong>Split</strong> sends one piece into superposition across two reachable squares at once.</p>
+          <p><strong>Merge</strong> recombines the two halves of a split piece back onto one square.</p>
+          <p><strong>Measurement</strong> happens whenever a quantum square is touched — the piece collapses to one real location, decided by its odds.</p>
+          <p>A king's probability of still existing is shown above; it reaches zero when that side loses.</p>
+        </div>
       </aside>
     </main>
+  </div>
+
+  <div class="modal-backdrop" id="promoBackdrop" hidden>
+    <div class="modal">
+      <p>Promote pawn to</p>
+      <div class="promo-choices" id="promoChoices"></div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="gameOverBackdrop" hidden>
+    <div class="modal">
+      <p id="gameOverText">Game over</p>
+      <button type="button" id="gameOverNewGame">New game</button>
+    </div>
   </div>
 
   <script>
     const API = ""
 
     async function getState() {
-      const r = await fetch(API + "/api/state")
+      const r = await fetch(API + "/api/state", {credentials: "same-origin"})
       return await r.json()
     }
 
     async function sendMove(moveData) {
       const r = await fetch(API + "/api/move", {
         method: "POST",
+        credentials: "same-origin",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify(moveData)
       })
       return await r.json()
     }
 
-    const canvas = document.getElementById("boardCanvas")
-    const ctx = canvas.getContext("2d")
-    const normalBtn = document.getElementById("normalBtn")
-    const splitBtn = document.getElementById("splitBtn")
-    const mergeBtn = document.getElementById("mergeBtn")
-    const resetBtn = document.getElementById("resetBtn")
-    const modePill = document.getElementById("modePill")
-    const statusHeadline = document.getElementById("statusHeadline")
-    const statusDetail = document.getElementById("statusDetail")
-    const statusError = document.getElementById("statusError")
-    const turnValue = document.getElementById("turnValue")
-    const turnSubtext = document.getElementById("turnSubtext")
-    const whiteBar = document.getElementById("whiteBar")
-    const blackBar = document.getElementById("blackBar")
-    const whitePct = document.getElementById("whitePct")
-    const blackPct = document.getElementById("blackPct")
-    const historyList = document.getElementById("historyList")
-    const capturedWhite = document.getElementById("capturedWhite")
-    const capturedBlack = document.getElementById("capturedBlack")
+    const FILES = "abcdefgh"
+    const RANKS = "87654321" // top to bottom, white's perspective
 
-    const PIECES = {
-      "K": "♔", "Q": "♕", "R": "♖", "B": "♗", "N": "♘", "P": "♙",
-      "k": "♚", "q": "♛", "r": "♜", "b": "♝", "n": "♞", "p": "♟"
+    const PIECE_TYPE_NAMES = {
+      k: "king", q: "queen", r: "rook", b: "bishop", n: "knight", p: "pawn"
     }
 
+    function pieceImageSrc(symbol) {
+      const color = symbol === symbol.toUpperCase() ? "white" : "black"
+      const type = PIECE_TYPE_NAMES[symbol.toLowerCase()]
+      return `/assets/pieces/${color}-${type}.png`
+    }
+
+    function pieceLabel(symbol) {
+      const color = symbol === symbol.toUpperCase() ? "White" : "Black"
+      const type = PIECE_TYPE_NAMES[symbol.toLowerCase()]
+      return `${color} ${type}`
+    }
+
+    const boardEl = document.getElementById("board")
+    const ranksEl = document.getElementById("ranks")
+    const filesEl = document.getElementById("files")
+    const statusLine = document.getElementById("statusLine")
+    const turnValue = document.getElementById("turnValue")
+    const turnSub = document.getElementById("turnSub")
+    const whiteFill = document.getElementById("whiteFill")
+    const blackFill = document.getElementById("blackFill")
+    const whitePct = document.getElementById("whitePct")
+    const blackPct = document.getElementById("blackPct")
+    const capturedWhite = document.getElementById("capturedWhite")
+    const capturedBlack = document.getElementById("capturedBlack")
+    const moveList = document.getElementById("moveList")
+    const newGameBtn = document.getElementById("newGameBtn")
+    const promoBackdrop = document.getElementById("promoBackdrop")
+    const promoChoices = document.getElementById("promoChoices")
+    const gameOverBackdrop = document.getElementById("gameOverBackdrop")
+    const gameOverText = document.getElementById("gameOverText")
+    const gameOverNewGame = document.getElementById("gameOverNewGame")
+
     const ui = {
-      mode: "NORMAL",
+      mode: "normal",
       selectedSquare: null,
       legalTargets: [],
       splitSource: null,
@@ -504,40 +639,42 @@
       loading: false,
       pollTimer: null,
       thinkTimer: null,
-      boardRect: null,
-      statusError: "",
-      messageOverride: ""
+      errorMessage: "",
+      pendingPromotion: null // {from, to}
     }
 
     let state = null
     let parsedMoves = {classical: [], split: [], merge: []}
 
-    function clearTimers() {
-      if (ui.pollTimer) {
-        clearInterval(ui.pollTimer)
-        ui.pollTimer = null
+    // ------------------------------------------------------------------
+    // Board construction
+    // ------------------------------------------------------------------
+
+    function buildBoard() {
+      ranksEl.innerHTML = RANKS.split("").map(r => `<span>${r}</span>`).join("")
+      filesEl.innerHTML = FILES.split("").map(f => `<span>${f}</span>`).join("")
+
+      boardEl.innerHTML = ""
+      for (const rankChar of RANKS) {
+        for (const fileChar of FILES) {
+          const square = fileChar + rankChar
+          const file = fileChar.charCodeAt(0) - 97
+          const rank = Number(rankChar)
+          const isLight = (file + rank) % 2 === 1
+          const btn = document.createElement("button")
+          btn.type = "button"
+          btn.className = `square ${isLight ? "light" : "dark"}`
+          btn.dataset.square = square
+          btn.setAttribute("aria-label", square)
+          btn.addEventListener("click", () => handleSquareClick(square))
+          boardEl.appendChild(btn)
+        }
       }
-      if (ui.thinkTimer) {
-        clearTimeout(ui.thinkTimer)
-        ui.thinkTimer = null
-      }
-      ui.waitingForAi = false
     }
 
-    function resetSelections() {
-      ui.selectedSquare = null
-      ui.legalTargets = []
-      ui.splitSource = null
-      ui.splitTarget1 = null
-      ui.mergeSource1 = null
-      ui.mergeSource2 = null
-    }
-
-    function setMode(mode) {
-      ui.mode = mode
-      resetSelections()
-      render()
-    }
+    // ------------------------------------------------------------------
+    // Move parsing (classical / split / merge strings from the API)
+    // ------------------------------------------------------------------
 
     function parseLegalMoves(legalMoves) {
       const result = {classical: [], split: [], merge: []}
@@ -554,23 +691,13 @@
 
         const splitMatch = /^split:([a-h][1-8]):([a-h][1-8]):([a-h][1-8])$/.exec(move)
         if (splitMatch) {
-          result.split.push({
-            raw: move,
-            from: splitMatch[1],
-            to1: splitMatch[2],
-            to2: splitMatch[3]
-          })
+          result.split.push({raw: move, from: splitMatch[1], to1: splitMatch[2], to2: splitMatch[3]})
           continue
         }
 
         const mergeMatch = /^merge:([a-h][1-8]):([a-h][1-8]):([a-h][1-8])$/.exec(move)
         if (mergeMatch) {
-          result.merge.push({
-            raw: move,
-            from1: mergeMatch[1],
-            from2: mergeMatch[2],
-            to: mergeMatch[3]
-          })
+          result.merge.push({raw: move, from1: mergeMatch[1], from2: mergeMatch[2], to: mergeMatch[3]})
         }
       }
       return result
@@ -581,199 +708,52 @@
     }
 
     function classicalMovesFrom(square) {
-      return parsedMoves.classical.filter(move => move.from === square)
+      return parsedMoves.classical.filter(m => m.from === square)
     }
 
     function splitMovesFrom(square) {
-      return parsedMoves.split.filter(move => move.from === square)
+      return parsedMoves.split.filter(m => m.from === square)
     }
 
     function mergeMovesForSource(square) {
-      return parsedMoves.merge.filter(move => move.from1 === square || move.from2 === square)
+      return parsedMoves.merge.filter(m => m.from1 === square || m.from2 === square)
     }
 
     function squareHasCurrentClassicalPiece(square) {
       if (!state) return false
-      return state.classical_pieces.some(piece => piece.square === square && piece.color === state.turn)
+      return state.classical_pieces.some(p => p.square === square && p.color === state.turn)
     }
 
-    function squareHasQuantumPiece(square) {
+    function squareHasCurrentQuantumPiece(square) {
       if (!state) return false
-      return state.quantum_pieces.some(piece => piece.squares.includes(square) && piece.color === state.turn)
+      return state.quantum_pieces.some(p => p.squares.includes(square) && p.color === state.turn)
     }
 
-    function getInstruction() {
-      if (state && state.game_over) {
-        if (state.winner === "white") return "Game over: White wins"
-        if (state.winner === "black") return "Game over: Black wins"
-        return "Game over"
-      }
+    // ------------------------------------------------------------------
+    // Move-history formatting: "e2–e4", "g1 → f3 + h3", "f3 + h3 → g1"
+    // ------------------------------------------------------------------
 
-      if (ui.waitingForAi) {
-        return "Black is thinking..."
+    function formatMove(move) {
+      if (/^[a-h][1-8][a-h][1-8][qrbn]?$/.test(move)) {
+        const from = move.slice(0, 2)
+        const to = move.slice(2, 4)
+        const promo = move.length > 4 ? `=${move.slice(4).toUpperCase()}` : ""
+        return `${from}–${to}${promo}`
       }
-
-      if (ui.mode === "SPLIT") {
-        if (!ui.splitSource) return "Click piece to split"
-        if (!ui.splitTarget1) return "Click first target square"
-        return "Click second target square"
+      const splitMatch = /^split:([a-h][1-8]):([a-h][1-8]):([a-h][1-8])$/.exec(move)
+      if (splitMatch) {
+        return `${splitMatch[1]} → ${splitMatch[2]} + ${splitMatch[3]}`
       }
-
-      if (ui.mode === "MERGE") {
-        if (!ui.mergeSource1) return "Click first ghost square"
-        if (!ui.mergeSource2) return "Click second ghost square"
-        return "Click target square"
+      const mergeMatch = /^merge:([a-h][1-8]):([a-h][1-8]):([a-h][1-8])$/.exec(move)
+      if (mergeMatch) {
+        return `${mergeMatch[1]} + ${mergeMatch[2]} → ${mergeMatch[3]}`
       }
-
-      return "Click a piece to select"
+      return move
     }
 
-    function getStatusHeadline() {
-      if (ui.mode === "SPLIT") return "SPLIT"
-      if (ui.mode === "MERGE") return "MERGE"
-      return "NORMAL"
-    }
-
-    function updateStatus() {
-      modePill.textContent = ui.mode
-      statusHeadline.textContent = getStatusHeadline()
-
-      if (ui.messageOverride) {
-        statusDetail.textContent = ui.messageOverride
-      } else if (!state) {
-        statusDetail.textContent = "Connecting to the Flask API."
-      } else if (state.turn !== "white" && !state.game_over) {
-        statusDetail.textContent = ui.waitingForAi ? "Polling every 500ms for Black's move." : getInstruction()
-      } else {
-        statusDetail.textContent = getInstruction()
-      }
-
-      statusError.textContent = ui.statusError || ""
-    }
-
-    function updateButtons() {
-      normalBtn.classList.toggle("active", ui.mode === "NORMAL")
-      splitBtn.classList.toggle("active", ui.mode === "SPLIT")
-      mergeBtn.classList.toggle("active", ui.mode === "MERGE")
-    }
-
-    function updateSidePanel() {
-      if (!state) {
-        turnValue.textContent = "--"
-        turnSubtext.textContent = "Waiting for state..."
-        whiteBar.style.width = "0%"
-        blackBar.style.width = "0%"
-        whitePct.textContent = "0%"
-        blackPct.textContent = "0%"
-        historyList.innerHTML = '<div class="empty-state">No moves yet.</div>'
-        capturedWhite.innerHTML = '<span class="empty-state">None</span>'
-        capturedBlack.innerHTML = '<span class="empty-state">None</span>'
-        return
-      }
-
-      turnValue.textContent = state.turn.toUpperCase()
-      if (state.game_over) {
-        turnSubtext.textContent = state.winner ? `${state.winner} wins.` : "Draw."
-      } else if (ui.waitingForAi) {
-        turnSubtext.textContent = "Waiting for Black's reply."
-      } else {
-        turnSubtext.textContent = state.turn === "white" ? "Your move." : "Black to move."
-      }
-
-      const whitePercent = Math.round((state.white_king_prob || 0) * 100)
-      const blackPercent = Math.round((state.black_king_prob || 0) * 100)
-      whiteBar.style.width = `${whitePercent}%`
-      blackBar.style.width = `${blackPercent}%`
-      whitePct.textContent = `${whitePercent}%`
-      blackPct.textContent = `${blackPercent}%`
-
-      const history = (state.move_history || []).slice(-20).reverse()
-      if (history.length === 0) {
-        historyList.innerHTML = '<div class="empty-state">No moves yet.</div>'
-      } else {
-        historyList.innerHTML = history.map((move, index) => {
-          const moveNumber = (state.move_history.length - index)
-          return `<div class="move-item">${moveNumber}. ${escapeHtml(move)}</div>`
-        }).join("")
-      }
-
-      capturedWhite.innerHTML = renderCaptured(state.captured_white)
-      capturedBlack.innerHTML = renderCaptured(state.captured_black)
-    }
-
-    function renderCaptured(pieces) {
-      if (!pieces || pieces.length === 0) {
-        return '<span class="empty-state">None</span>'
-      }
-      return pieces.map(piece => `<span>${PIECES[piece] || piece}</span>`).join("")
-    }
-
-    function escapeHtml(text) {
-      return text
-        .split("&").join("&amp;")
-        .split("<").join("&lt;")
-        .split(">").join("&gt;")
-    }
-
-    function resizeCanvas() {
-      const mobile = window.innerWidth <= 980
-      const statusReserve = mobile ? 250 : 190
-      const panelReserve = mobile ? 0 : 250
-      const rawSize = mobile
-        ? Math.min(window.innerWidth, window.innerHeight) - 40
-        : Math.min(window.innerHeight - statusReserve, window.innerWidth - panelReserve - 40)
-      const cssSize = Math.max(280, Math.floor(rawSize))
-      const dpr = window.devicePixelRatio || 1
-
-      canvas.style.width = `${cssSize}px`
-      canvas.style.height = `${cssSize}px`
-      canvas.width = Math.floor(cssSize * dpr)
-      canvas.height = Math.floor(cssSize * dpr)
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-
-      const coordPad = Math.max(22, Math.floor(cssSize * 0.055))
-      const outerPad = Math.max(8, Math.floor(cssSize * 0.015))
-      const boardSize = cssSize - coordPad - outerPad
-      const square = Math.floor(boardSize / 8)
-      const boardPx = square * 8
-      const offsetX = coordPad
-      const offsetY = outerPad
-
-      ui.boardRect = {
-        cssSize,
-        coordPad,
-        outerPad,
-        boardPx,
-        square,
-        offsetX,
-        offsetY
-      }
-    }
-
-    function algebraicToCoords(square) {
-      if (!ui.boardRect) return null
-      const file = square.charCodeAt(0) - 97
-      const rank = Number(square[1])
-      const x = ui.boardRect.offsetX + file * ui.boardRect.square
-      const y = ui.boardRect.offsetY + (8 - rank) * ui.boardRect.square
-      return {x, y}
-    }
-
-    function canvasPointToSquare(clientX, clientY) {
-      if (!ui.boardRect) return null
-      const rect = canvas.getBoundingClientRect()
-      const x = clientX - rect.left
-      const y = clientY - rect.top
-      const {offsetX, offsetY, boardPx, square} = ui.boardRect
-
-      if (x < offsetX || x > offsetX + boardPx || y < offsetY || y > offsetY + boardPx) {
-        return null
-      }
-
-      const file = Math.floor((x - offsetX) / square)
-      const rank = 8 - Math.floor((y - offsetY) / square)
-      return String.fromCharCode(97 + file) + String(rank)
-    }
+    // ------------------------------------------------------------------
+    // Rendering
+    // ------------------------------------------------------------------
 
     function quantumEntriesBySquare() {
       const entries = new Map()
@@ -781,217 +761,232 @@
       for (const qp of quantumPieces) {
         qp.squares.forEach((square, index) => {
           const list = entries.get(square) || []
-          list.push({
-            piece: qp.piece,
-            color: qp.color,
-            probability: qp.probabilities[index] || 0
-          })
+          list.push({piece: qp.piece, probability: qp.probabilities[index] || 0})
           entries.set(square, list)
         })
       }
       return entries
     }
 
+    function lastMoveSquares() {
+      if (!state || !state.last_move) return []
+      const move = state.last_move
+      if (/^[a-h][1-8][a-h][1-8][qrbn]?$/.test(move)) {
+        return [move.slice(0, 2), move.slice(2, 4)]
+      }
+      const splitMatch = /^split:([a-h][1-8]):([a-h][1-8]):([a-h][1-8])$/.exec(move)
+      if (splitMatch) return [splitMatch[1], splitMatch[2], splitMatch[3]]
+      const mergeMatch = /^merge:([a-h][1-8]):([a-h][1-8]):([a-h][1-8])$/.exec(move)
+      if (mergeMatch) return [mergeMatch[1], mergeMatch[2], mergeMatch[3]]
+      return []
+    }
+
     function selectedSquares() {
       const squares = []
-      if (ui.mode === "NORMAL" && ui.selectedSquare) squares.push(ui.selectedSquare)
-      if (ui.mode === "SPLIT" && ui.splitSource) squares.push(ui.splitSource)
-      if (ui.mode === "SPLIT" && ui.splitTarget1) squares.push(ui.splitTarget1)
-      if (ui.mode === "MERGE" && ui.mergeSource1) squares.push(ui.mergeSource1)
-      if (ui.mode === "MERGE" && ui.mergeSource2) squares.push(ui.mergeSource2)
+      if (ui.mode === "normal" && ui.selectedSquare) squares.push(ui.selectedSquare)
+      if (ui.mode === "split" && ui.splitSource) squares.push(ui.splitSource)
+      if (ui.mode === "split" && ui.splitTarget1) squares.push(ui.splitTarget1)
+      if (ui.mode === "merge" && ui.mergeSource1) squares.push(ui.mergeSource1)
+      if (ui.mode === "merge" && ui.mergeSource2) squares.push(ui.mergeSource2)
       return squares
     }
 
     function renderBoard() {
-      if (!ui.boardRect) return
-
-      const {cssSize, coordPad, boardPx, square, offsetX, offsetY} = ui.boardRect
-      ctx.clearRect(0, 0, cssSize, cssSize)
-
-      const bg = ctx.createLinearGradient(0, 0, cssSize, cssSize)
-      bg.addColorStop(0, "rgba(255,255,255,0.04)")
-      bg.addColorStop(1, "rgba(255,255,255,0.01)")
-      ctx.fillStyle = bg
-      roundRect(ctx, 0, 0, cssSize, cssSize, 24)
-      ctx.fill()
-
-      ctx.strokeStyle = "rgba(255,255,255,0.06)"
-      ctx.lineWidth = 1
-      roundRect(ctx, 0.5, 0.5, cssSize - 1, cssSize - 1, 24)
-      ctx.stroke()
-
-      for (let rank = 8; rank >= 1; rank--) {
-        for (let file = 0; file < 8; file++) {
-          const x = offsetX + file * square
-          const y = offsetY + (8 - rank) * square
-          const isLight = (file + rank) % 2 === 1
-          ctx.fillStyle = isLight ? "#f0d9b5" : "#b58863"
-          ctx.fillRect(x, y, square, square)
-        }
-      }
-
-      const selected = selectedSquares()
-      for (const squareName of selected) {
-        const coords = algebraicToCoords(squareName)
-        if (!coords) continue
-        ctx.save()
-        ctx.strokeStyle = "#fff266"
-        ctx.lineWidth = Math.max(3, square * 0.07)
-        ctx.shadowColor = "rgba(255, 242, 102, 0.65)"
-        ctx.shadowBlur = square * 0.28
-        ctx.strokeRect(
-          coords.x + 2,
-          coords.y + 2,
-          square - 4,
-          square - 4
-        )
-        ctx.restore()
-      }
-
       const quantumMap = quantumEntriesBySquare()
-      for (const [squareName] of quantumMap) {
-        const coords = algebraicToCoords(squareName)
-        if (!coords) continue
-        ctx.save()
-        ctx.strokeStyle = "rgba(0, 229, 255, 0.95)"
-        ctx.lineWidth = Math.max(2, square * 0.045)
-        ctx.shadowColor = "rgba(0, 229, 255, 0.95)"
-        ctx.shadowBlur = square * 0.25
-        ctx.strokeRect(
-          coords.x + 3,
-          coords.y + 3,
-          square - 6,
-          square - 6
-        )
-        ctx.restore()
-      }
-
+      const lastMoves = new Set(lastMoveSquares())
+      const selected = new Set(selectedSquares())
+      const targets = new Set(ui.legalTargets)
+      const classicalBySquare = new Map()
       if (state) {
-        ctx.font = `${Math.floor(square * 0.75)}px "Segoe UI Symbol", "Apple Color Emoji", serif`
-        ctx.textAlign = "center"
-        ctx.textBaseline = "middle"
+        for (const p of state.classical_pieces) classicalBySquare.set(p.square, p)
+      }
 
-        for (const piece of state.classical_pieces) {
-          drawPiece(piece.square, piece.piece, 1)
+      for (const btn of boardEl.children) {
+        const square = btn.dataset.square
+        btn.classList.toggle("last-move", lastMoves.has(square))
+        btn.classList.toggle("selected", selected.has(square))
+        const isTarget = targets.has(square)
+        btn.classList.toggle("target", isTarget)
+        btn.classList.toggle("occupied", isTarget && classicalBySquare.has(square))
+
+        const classicalPiece = classicalBySquare.get(square)
+        const quantumPieces = quantumMap.get(square) || []
+        const count = (classicalPiece ? 1 : 0) + quantumPieces.length
+
+        let html = ""
+        let label = square
+        if (count > 0) {
+          html += `<div class="piece-stack" data-count="${count}">`
+          if (classicalPiece) {
+            html += `<img class="piece-img" src="${pieceImageSrc(classicalPiece.piece)}" alt="${pieceLabel(classicalPiece.piece)}">`
+            label = `${square}, ${pieceLabel(classicalPiece.piece)}`
+          }
+          for (const qp of quantumPieces) {
+            const pct = Math.round(qp.probability * 100)
+            html += `<span class="quantum-wrap"><img class="piece-img" src="${pieceImageSrc(qp.piece)}" alt="${pieceLabel(qp.piece)}"><span class="prob">${pct}%</span></span>`
+            label += `${classicalPiece || quantumPieces.indexOf(qp) > 0 ? "; " : ", "}${pieceLabel(qp.piece)} (${pct}%)`
+          }
+          html += "</div>"
+        } else {
+          label = `${square}, empty`
         }
-
-        for (const [squareName, pieces] of quantumMap) {
-          pieces.forEach((piece, index) => {
-            drawPiece(squareName, piece.piece, 0.6, index)
-            drawProbability(squareName, piece.probability, index)
-          })
+        if (quantumPieces.length > 0) {
+          html += `<span class="quantum-badge">Q</span>`
         }
-      }
-
-      for (const squareName of ui.legalTargets) {
-        const coords = algebraicToCoords(squareName)
-        if (!coords) continue
-        ctx.save()
-        ctx.fillStyle = "rgba(40, 220, 90, 0.9)"
-        ctx.shadowColor = "rgba(40, 220, 90, 0.7)"
-        ctx.shadowBlur = square * 0.18
-        ctx.beginPath()
-        ctx.arc(
-          coords.x + square / 2,
-          coords.y + square / 2,
-          Math.max(7, square * 0.11),
-          0,
-          Math.PI * 2
-        )
-        ctx.fill()
-        ctx.restore()
-      }
-
-      ctx.fillStyle = "rgba(230, 230, 238, 0.88)"
-      ctx.font = `${Math.max(12, Math.floor(coordPad * 0.58))}px "Segoe UI", sans-serif`
-      ctx.textAlign = "center"
-      ctx.textBaseline = "middle"
-
-      for (let file = 0; file < 8; file++) {
-        const x = offsetX + file * square + square / 2
-        const y = offsetY + boardPx + coordPad * 0.55
-        ctx.fillText(String.fromCharCode(97 + file), x, y)
-      }
-
-      ctx.textAlign = "center"
-      for (let rank = 8; rank >= 1; rank--) {
-        const x = coordPad * 0.44
-        const y = offsetY + (8 - rank) * square + square / 2
-        ctx.fillText(String(rank), x, y)
+        btn.innerHTML = html
+        btn.setAttribute("aria-label", label)
       }
     }
 
-    function drawPiece(squareName, pieceSymbol, alpha, stackIndex = 0) {
-      const coords = algebraicToCoords(squareName)
-      if (!coords) return
-      const char = PIECES[pieceSymbol] || pieceSymbol
-      const square = ui.boardRect.square
-      const jitter = stackIndex * Math.max(4, square * 0.05)
+    function renderStatus() {
+      let text = ""
+      let cls = ""
 
-      ctx.save()
-      ctx.globalAlpha = alpha
-      ctx.fillStyle = pieceSymbol === pieceSymbol.toUpperCase() ? "#fffdf7" : "#121212"
-      ctx.shadowColor = alpha < 1 ? "rgba(0, 229, 255, 0.95)" : "rgba(0, 0, 0, 0.45)"
-      ctx.shadowBlur = alpha < 1 ? square * 0.25 : square * 0.09
-      ctx.fillText(
-        char,
-        coords.x + square / 2,
-        coords.y + square / 2 + jitter * 0.08
-      )
-      ctx.restore()
+      if (ui.errorMessage) {
+        text = ui.errorMessage
+        cls = "error"
+      } else if (!state) {
+        text = "Connecting to the server."
+      } else if (state.game_over) {
+        text = state.winner === "white" ? "Game over — White wins."
+             : state.winner === "black" ? "Game over — Black wins."
+             : "Game over — draw."
+      } else if (ui.waitingForAi) {
+        text = "Black is thinking…"
+      } else if (state.measurements && state.measurements.length > 0) {
+        text = state.measurements.map(m => {
+          const who = pieceLabel(m.piece)
+          const base = `Measured: ${who} collapsed to ${m.square}`
+          return m.captured ? `${base}, capturing ${pieceLabel(m.captured)}.` : `${base}.`
+        }).join(" ")
+        cls = "measurement"
+      } else if (ui.mode === "split") {
+        if (!ui.splitSource) text = "Click a piece to split."
+        else if (!ui.splitTarget1) text = "Click the first target square."
+        else text = "Click the second target square."
+      } else if (ui.mode === "merge") {
+        if (!ui.mergeSource1) text = "Click the first quantum square to merge."
+        else if (!ui.mergeSource2) text = "Click the second quantum square to merge."
+        else text = "Click the destination square."
+      } else {
+        text = state.turn === "white" ? "Your move." : "Black to move."
+      }
+
+      statusLine.textContent = text
+      statusLine.className = `status-line ${cls}`
     }
 
-    function drawProbability(squareName, probability, stackIndex = 0) {
-      const coords = algebraicToCoords(squareName)
-      if (!coords) return
-      const square = ui.boardRect.square
-      const pct = `${Math.round(probability * 100)}%`
+    function renderSidePanel() {
+      if (!state) {
+        turnValue.textContent = "—"
+        turnSub.textContent = "Waiting for state…"
+        return
+      }
 
-      ctx.save()
-      ctx.font = `${Math.max(10, Math.floor(square * 0.17))}px "Segoe UI", sans-serif`
-      ctx.textAlign = "left"
-      ctx.textBaseline = "top"
-      ctx.fillStyle = "#8ff9ff"
-      ctx.shadowColor = "rgba(0, 229, 255, 0.8)"
-      ctx.shadowBlur = square * 0.12
-      ctx.fillText(
-        pct,
-        coords.x + square * 0.08,
-        coords.y + square * 0.08 + stackIndex * Math.max(10, square * 0.13)
-      )
-      ctx.restore()
+      turnValue.textContent = state.turn === "white" ? "White" : "Black"
+      if (state.game_over) {
+        turnSub.textContent = state.winner ? `${state.winner} wins.` : "Draw."
+      } else if (ui.waitingForAi) {
+        turnSub.textContent = "Waiting for Black's reply."
+      } else {
+        turnSub.textContent = state.turn === "white" ? "Your move." : "Black to move."
+      }
+
+      const wp = Math.round((state.white_king_prob || 0) * 100)
+      const bp = Math.round((state.black_king_prob || 0) * 100)
+      whiteFill.style.width = `${wp}%`
+      blackFill.style.width = `${bp}%`
+      whitePct.textContent = `${wp}%`
+      blackPct.textContent = `${bp}%`
+
+      capturedWhite.innerHTML = renderCapturedRow(state.captured_white)
+      capturedBlack.innerHTML = renderCapturedRow(state.captured_black)
+
+      const history = state.move_history || []
+      if (history.length === 0) {
+        moveList.innerHTML = '<li class="empty-note" style="border:none;">No moves yet.</li>'
+      } else {
+        const pairs = []
+        for (let i = 0; i < history.length; i += 2) {
+          pairs.push([history[i], history[i + 1]])
+        }
+        moveList.innerHTML = pairs.map(([w, b], idx) => `
+          <li>
+            <span class="num">${idx + 1}.</span>
+            <span class="w">${formatMove(w)}</span>
+            <span class="b">${b ? formatMove(b) : ""}</span>
+          </li>
+        `).join("")
+        moveList.scrollTop = moveList.scrollHeight
+      }
     }
 
-    function roundRect(context, x, y, width, height, radius) {
-      context.beginPath()
-      context.moveTo(x + radius, y)
-      context.lineTo(x + width - radius, y)
-      context.quadraticCurveTo(x + width, y, x + width, y + radius)
-      context.lineTo(x + width, y + height - radius)
-      context.quadraticCurveTo(x + width, y + height, x + width - radius, y + height)
-      context.lineTo(x + radius, y + height)
-      context.quadraticCurveTo(x, y + height, x, y + height - radius)
-      context.lineTo(x, y + radius)
-      context.quadraticCurveTo(x, y, x + radius, y)
-      context.closePath()
+    function renderCapturedRow(pieces) {
+      if (!pieces || pieces.length === 0) return '<span class="empty">None</span>'
+      return pieces.map(p => `<img src="${pieceImageSrc(p)}" alt="${pieceLabel(p)}" title="${pieceLabel(p)}">`).join("")
+    }
+
+    function renderButtons() {
+      document.querySelectorAll(".mode-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.mode === ui.mode)
+      })
+    }
+
+    function renderGameOver() {
+      if (state && state.game_over) {
+        const text = state.winner === "white" ? "White wins — Black's king is gone."
+                   : state.winner === "black" ? "Black wins — White's king is gone."
+                   : "Draw — both kings are gone."
+        gameOverText.textContent = text
+        gameOverBackdrop.hidden = false
+      } else {
+        gameOverBackdrop.hidden = true
+      }
     }
 
     function render() {
-      updateButtons()
-      updateStatus()
-      updateSidePanel()
+      renderButtons()
+      renderStatus()
+      renderSidePanel()
       renderBoard()
+      renderGameOver()
+    }
+
+    // ------------------------------------------------------------------
+    // Networking / polling
+    // ------------------------------------------------------------------
+
+    function clearTimers() {
+      if (ui.pollTimer) { clearInterval(ui.pollTimer); ui.pollTimer = null }
+      if (ui.thinkTimer) { clearTimeout(ui.thinkTimer); ui.thinkTimer = null }
+      ui.waitingForAi = false
+    }
+
+    function resetSelections() {
+      ui.selectedSquare = null
+      ui.legalTargets = []
+      ui.splitSource = null
+      ui.splitTarget1 = null
+      ui.mergeSource1 = null
+      ui.mergeSource2 = null
+    }
+
+    function setMode(mode) {
+      if (state && state.game_over) return
+      ui.mode = mode
+      ui.errorMessage = ""
+      resetSelections()
+      render()
     }
 
     async function refreshState() {
       try {
-        ui.statusError = ""
-        const nextState = await getState()
-        state = nextState
+        ui.errorMessage = ""
+        state = await getState()
         parsedMoves = parseLegalMoves(state.legal_moves)
         render()
       } catch (error) {
-        ui.statusError = `Failed to fetch state: ${error.message}`
+        ui.errorMessage = `Could not reach the server: ${error.message}`
         render()
       }
     }
@@ -999,8 +994,7 @@
     async function performMove(moveData) {
       if (ui.loading || !state) return
       ui.loading = true
-      ui.statusError = ""
-      ui.messageOverride = "Sending move..."
+      ui.errorMessage = ""
       render()
 
       try {
@@ -1010,8 +1004,7 @@
             state = response.state
             parsedMoves = parseLegalMoves(state.legal_moves)
           }
-          ui.statusError = response.error
-          ui.messageOverride = ""
+          ui.errorMessage = response.error
           render()
           return
         }
@@ -1019,16 +1012,14 @@
         state = response
         parsedMoves = parseLegalMoves(state.legal_moves)
         resetSelections()
-        setMode("NORMAL")
-        ui.messageOverride = ""
+        ui.mode = "normal"
         render()
 
         if (!state.game_over && state.turn === "black") {
           startAiPolling()
         }
       } catch (error) {
-        ui.statusError = `Move failed: ${error.message}`
-        ui.messageOverride = ""
+        ui.errorMessage = `Move failed: ${error.message}`
         render()
       } finally {
         ui.loading = false
@@ -1038,76 +1029,122 @@
     function startAiPolling() {
       clearTimers()
       ui.waitingForAi = true
-      ui.messageOverride = "Black is thinking..."
       render()
 
       ui.thinkTimer = setTimeout(() => {
         const poll = async () => {
           try {
-            const nextState = await getState()
-            state = nextState
+            state = await getState()
             parsedMoves = parseLegalMoves(state.legal_moves)
             if (state.turn === "white" || state.game_over) {
               clearTimers()
-              ui.messageOverride = ""
             }
             render()
           } catch (error) {
-            ui.statusError = `Polling failed: ${error.message}`
+            ui.errorMessage = `Polling failed: ${error.message}`
             render()
           }
         }
-
         poll()
         ui.pollTimer = setInterval(poll, 500)
-      }, 1800)
+      }, 400)
     }
 
+    async function resetGame() {
+      clearTimers()
+      resetSelections()
+      ui.errorMessage = ""
+      ui.mode = "normal"
+
+      try {
+        const response = await fetch(API + "/api/reset", {method: "POST", credentials: "same-origin"})
+        state = await response.json()
+        parsedMoves = parseLegalMoves(state.legal_moves)
+        render()
+      } catch (error) {
+        ui.errorMessage = `Reset failed: ${error.message}`
+        render()
+      }
+    }
+
+    // ------------------------------------------------------------------
+    // Interaction: normal / split / merge click handlers
+    // ------------------------------------------------------------------
+
     function normalTargetsFor(square) {
-      return classicalMovesFrom(square).map(move => move.to)
+      return classicalMovesFrom(square).map(m => m.to)
     }
 
     function splitTargetsForSource(square) {
-      return uniqSquares(
-        splitMovesFrom(square).flatMap(move => [move.to1, move.to2])
-      )
+      return uniqSquares(splitMovesFrom(square).flatMap(m => [m.to1, m.to2]))
     }
 
     function splitSecondTargets(source, firstTarget) {
-      const matches = splitMovesFrom(source).filter(move =>
-        move.to1 === firstTarget || move.to2 === firstTarget
-      )
-      return uniqSquares(matches.map(move => move.to1 === firstTarget ? move.to2 : move.to1))
+      const matches = splitMovesFrom(source).filter(m => m.to1 === firstTarget || m.to2 === firstTarget)
+      return uniqSquares(matches.map(m => m.to1 === firstTarget ? m.to2 : m.to1))
     }
 
     function mergeSecondSources(firstSource) {
       const matches = mergeMovesForSource(firstSource)
-      return uniqSquares(matches.map(move => move.from1 === firstSource ? move.from2 : move.from1))
+      return uniqSquares(matches.map(m => m.from1 === firstSource ? m.from2 : m.from1))
     }
 
     function mergeTargets(firstSource, secondSource) {
       return uniqSquares(
         parsedMoves.merge
-          .filter(move => {
-            const sources = [move.from1, move.from2]
+          .filter(m => {
+            const sources = [m.from1, m.from2]
             return sources.includes(firstSource) && sources.includes(secondSource)
           })
-          .map(move => move.to)
+          .map(m => m.to)
       )
     }
+
+    function isPromotionTarget(fromSquare, toSquare) {
+      const move = classicalMovesFrom(fromSquare).find(m => m.to === toSquare && m.promotion)
+      return !!move
+    }
+
+    function openPromotionPicker(fromSquare, toSquare) {
+      ui.pendingPromotion = {from: fromSquare, to: toSquare}
+      const choices = [
+        {code: "q", label: "Queen"},
+        {code: "r", label: "Rook"},
+        {code: "b", label: "Bishop"},
+        {code: "n", label: "Knight"}
+      ]
+      const isWhite = state.turn === "white"
+      promoChoices.innerHTML = choices.map(c => {
+        const symbol = isWhite ? c.code.toUpperCase() : c.code
+        return `<button type="button" data-code="${c.code}"><img src="${pieceImageSrc(symbol)}" alt="${c.label}"><span>${c.label}</span></button>`
+      }).join("")
+      promoBackdrop.hidden = false
+    }
+
+    promoChoices.addEventListener("click", (event) => {
+      const btn = event.target.closest("button[data-code]")
+      if (!btn || !ui.pendingPromotion) return
+      const {from, to} = ui.pendingPromotion
+      ui.pendingPromotion = null
+      promoBackdrop.hidden = true
+      performMove({type: "classical", from, to, promotion: btn.dataset.code})
+    })
 
     function handleNormalClick(square) {
       if (!state || state.turn !== "white") return
 
       if (ui.selectedSquare && ui.legalTargets.includes(square)) {
-        const move = classicalMovesFrom(ui.selectedSquare).find(candidate => candidate.to === square)
+        if (isPromotionTarget(ui.selectedSquare, square)) {
+          const fromSquare = ui.selectedSquare
+          ui.selectedSquare = null
+          ui.legalTargets = []
+          render()
+          openPromotionPicker(fromSquare, square)
+          return
+        }
+        const move = classicalMovesFrom(ui.selectedSquare).find(m => m.to === square)
         if (!move) return
-        performMove({
-          type: "classical",
-          from: move.from,
-          to: move.to,
-          ...(move.promotion ? {promotion: move.promotion} : {})
-        })
+        performMove({type: "classical", from: move.from, to: move.to})
         return
       }
 
@@ -1151,23 +1188,16 @@
         return
       }
 
-      if (!ui.legalTargets.includes(square) || square === ui.splitSource || square === ui.splitTarget1) {
-        return
-      }
+      if (!ui.legalTargets.includes(square) || square === ui.splitSource || square === ui.splitTarget1) return
 
-      performMove({
-        type: "split",
-        from: ui.splitSource,
-        to1: ui.splitTarget1,
-        to2: square
-      })
+      performMove({type: "split", from: ui.splitSource, to1: ui.splitTarget1, to2: square})
     }
 
     function handleMergeClick(square) {
       if (!state || state.turn !== "white") return
 
       if (!ui.mergeSource1) {
-        if (!squareHasQuantumPiece(square)) return
+        if (!squareHasCurrentQuantumPiece(square)) return
         const options = mergeSecondSources(square)
         if (options.length === 0) return
         ui.mergeSource1 = square
@@ -1186,98 +1216,48 @@
 
       if (!ui.legalTargets.includes(square)) return
 
-      performMove({
-        type: "merge",
-        from1: ui.mergeSource1,
-        from2: ui.mergeSource2,
-        to: square
-      })
+      performMove({type: "merge", from1: ui.mergeSource1, from2: ui.mergeSource2, to: square})
     }
 
-    function handleBoardInteraction(event) {
-      event.preventDefault()
+    function handleSquareClick(square) {
       if (!state || ui.loading || ui.waitingForAi || state.game_over) return
+      ui.errorMessage = ""
 
-      const point = event.touches && event.touches[0] ? event.touches[0] : event
-      const square = canvasPointToSquare(point.clientX, point.clientY)
-      if (!square) return
-
-      ui.statusError = ""
-      ui.messageOverride = ""
-
-      if (ui.mode === "SPLIT") {
-        handleSplitClick(square)
-        return
-      }
-
-      if (ui.mode === "MERGE") {
-        handleMergeClick(square)
-        return
-      }
-
+      if (ui.mode === "split") { handleSplitClick(square); return }
+      if (ui.mode === "merge") { handleMergeClick(square); return }
       handleNormalClick(square)
     }
 
-    async function resetGame() {
-      clearTimers()
-      resetSelections()
-      ui.statusError = ""
-      ui.messageOverride = "Resetting board..."
-      render()
-
-      try {
-        const response = await fetch(API + "/api/reset", {method: "POST"})
-        state = await response.json()
-        parsedMoves = parseLegalMoves(state.legal_moves)
-        setMode("NORMAL")
-        ui.messageOverride = ""
-        render()
-      } catch (error) {
-        ui.statusError = `Reset failed: ${error.message}`
-        ui.messageOverride = ""
-        render()
-      }
-    }
+    // ------------------------------------------------------------------
+    // Keyboard shortcuts: Q split, M merge, Esc normal, R new game
+    // ------------------------------------------------------------------
 
     function handleKeydown(event) {
       if (event.repeat) return
+      if (!promoBackdrop.hidden) return
 
-      if (event.key === "q" || event.key === "Q") {
-        setMode("SPLIT")
-        return
-      }
-
-      if (event.key === "m" || event.key === "M") {
-        setMode("MERGE")
-        return
-      }
-
-      if (event.key === "r" || event.key === "R") {
-        resetGame()
-        return
-      }
-
-      if (event.key === "Escape") {
-        setMode("NORMAL")
-      }
+      const key = event.key.toLowerCase()
+      if (key === "q") { setMode("split"); return }
+      if (key === "m") { setMode("merge"); return }
+      if (key === "r") { resetGame(); return }
+      if (event.key === "Escape") { setMode("normal") }
     }
 
-    function bindEvents() {
-      canvas.addEventListener("pointerdown", handleBoardInteraction)
-      window.addEventListener("keydown", handleKeydown)
-      window.addEventListener("resize", () => {
-        resizeCanvas()
-        render()
-      })
+    // ------------------------------------------------------------------
+    // Boot
+    // ------------------------------------------------------------------
 
-      normalBtn.addEventListener("click", () => setMode("NORMAL"))
-      splitBtn.addEventListener("click", () => setMode("SPLIT"))
-      mergeBtn.addEventListener("click", () => setMode("MERGE"))
-      resetBtn.addEventListener("click", resetGame)
+    function bindEvents() {
+      window.addEventListener("keydown", handleKeydown)
+      document.querySelectorAll(".mode-btn").forEach(btn => {
+        btn.addEventListener("click", () => setMode(btn.dataset.mode))
+      })
+      newGameBtn.addEventListener("click", resetGame)
+      gameOverNewGame.addEventListener("click", resetGame)
     }
 
     async function boot() {
-      resizeCanvas()
+      buildBoard()
       bindEvents()
       render()
       await refreshState()
